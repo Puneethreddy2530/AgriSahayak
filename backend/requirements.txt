@@ -1,0 +1,35 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+alembic==1.13.1
+psycopg2-binary==2.9.9
+redis==5.0.1
+
+# ML & AI
+torch==2.1.2+cu118
+torchvision==0.16.2+cu118
+numpy==1.26.3
+pandas==2.1.4
+scikit-learn==1.4.0
+Pillow==10.2.0
+opencv-python==4.9.0.80
+
+# Twilio IVR
+twilio==8.11.1
+
+# Auth & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# External APIs
+httpx==0.26.0
+aiohttp==3.9.1
+
+# Utils
+python-dotenv==1.0.0

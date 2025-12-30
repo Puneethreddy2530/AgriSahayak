@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+.angular/
+
+# Database
+*.db
+*.sqlite3
+backend/agrisahayak.db
+
+# Large Data & Models
+ml/data/
+ml/models/disease_detector_goated.pth
+
+# Logs
+*.log
