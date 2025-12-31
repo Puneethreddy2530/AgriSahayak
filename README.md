@@ -1,4 +1,12 @@
-
+---
+title: AgriSahayak
+emoji: 🌾
+colorFrom: green
+colorTo: yellow
+sdk: docker
+pinned: false
+license: mit
+---
 
 <div align="center">
 
@@ -19,8 +27,12 @@
 ![Transformers](https://img.shields.io/badge/🤗_Transformers-4.36-FFD21E?style=flat-square)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.8.0-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat-square)
+![Mobile Ready](https://img.shields.io/badge/Mobile-Responsive-4285F4?style=flat-square&logo=google-chrome&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
+**🏆 Built for Aarohan Hackathon 2025**
+
+*Revolutionizing Indian Agriculture with Deep Learning, Computer Vision & Real-time Analytics*
 
 </div>
 
@@ -75,6 +87,13 @@
 | 📝 **Complaint System** | Farmer-to-Officer communication | JWT Auth + RBAC |
 | 👨‍💼 **Admin Dashboard** | District-level analytics & management | Role-based Access |
 
+### 📱 Mobile-First Responsive Design
+- **Bottom Navigation Bar** - Quick access to core features
+- **Hamburger Menu** - Full sidebar access on mobile
+- **Touch-Friendly UI** - Large tap targets, optimized inputs
+- **iOS Safe Area Support** - Works on notched devices
+- **Responsive Breakpoints** - Tablet (1024px), Mobile (768px), Small (480px)
+
 ### 🌐 9 Indian Languages
 `English` `हिंदी` `తెలుగు` `தமிழ்` `मराठी` `ಕನ್ನಡ` `বাংলা` `ગુજરાતી` `ਪੰਜਾਬੀ`
 
@@ -87,12 +106,15 @@
 | **PlantVillage** | [Kaggle](https://www.kaggle.com/datasets/emmarex/plantdisease) | 87K images, 38 classes |
 | **Crop Recommendation** | [Kaggle](https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset) | 2.2K samples, 22 crops |
 
+---
+
 ## 🛠️ Technical Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        FRONTEND                                  │
+│                     FRONTEND (Mobile-First)                      │
 │   Vanilla JS + CSS3 Glassmorphism + Lucide Icons + i18n         │
+│   Bottom Nav + Hamburger Menu + Touch Optimized                 │
 └─────────────────────────┬───────────────────────────────────────┘
                           │ REST API
 ┌─────────────────────────▼───────────────────────────────────────┐
@@ -148,6 +170,14 @@ pandas==2.1.4             # Data manipulation
 python-jose[cryptography] # JWT token handling
 passlib[bcrypt]           # Password hashing
 bcrypt==4.1.2             # Industry-standard encryption
+```
+
+### Frontend
+```
+HTML5 + CSS3              # Semantic markup & Glassmorphism UI
+Vanilla JavaScript        # 3800+ lines, no framework overhead
+Lucide Icons              # Modern icon library
+CSS Media Queries         # Responsive design (768px, 480px breakpoints)
 ```
 
 ---
@@ -216,21 +246,21 @@ BASE URL: /api/v1
 AgriSahayak/
 ├── 🔧 backend/
 │   ├── app/
-│   │   ├── api/v1/endpoints/    # REST API routes
+│   │   ├── api/v1/endpoints/    # REST API routes (14 modules)
 │   │   ├── core/                # Config & security
 │   │   ├── db/                  # SQLAlchemy models & CRUD
 │   │   └── ml/                  # ML service layer
 │   └── requirements.txt
 ├── 🎨 frontend/
-│   ├── index.html               # Single-page app
-│   ├── styles.css               # Glassmorphism UI
-│   └── app.js                   # Vanilla JS (3700+ lines)
+│   ├── index.html               # Single-page app + mobile nav
+│   ├── styles.css               # Glassmorphism + responsive CSS
+│   └── app.js                   # Vanilla JS (3800+ lines)
 ├── 🧠 ml/
 │   ├── models/
 │   │   ├── disease_detector_goated.pth  # 112MB ResNet-50
 │   │   ├── crop_recommender_nn.pth      # Neural Network
 │   │   └── yield_predictor.joblib       # Random Forest
-│   └── training/                # Training notebooks
+│   └── training/                # Training scripts
 ├── 🐳 Dockerfile                # HuggingFace Spaces
 ├── 📋 requirements.txt
 └── 📖 README.md
@@ -254,9 +284,13 @@ AgriSahayak/
 - ✅ **End-to-end ML pipeline** from data to deployment
 - ✅ **Production-ready** with Docker & HuggingFace Spaces
 - ✅ **GPU-accelerated** inference with CUDA
-- ✅ **Multi-language** support for rural adoption
+- ✅ **Mobile-responsive** with bottom nav & hamburger menu
+- ✅ **Multi-language** support for rural adoption (9 languages)
 - ✅ **Real-world impact** solving farmer challenges
 - ✅ **Modern tech stack** with latest frameworks
+- ✅ **3800+ lines of JavaScript** - Feature-rich SPA
+- ✅ **14 API endpoints** - Complete backend coverage
+- ✅ **Land dropdown selection** - User-friendly crop cycle tracking
 
 ---
 
@@ -277,5 +311,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ### ⭐ Star this repo if you found it helpful!
 
 [![Live Demo](https://img.shields.io/badge/Try_Live_Demo-🚀-green?style=for-the-badge)](https://huggingface.co/spaces/Puneethreddyt/Agrisahayak)
+
+**📱 Works on Mobile, Tablet & Desktop**
 
 </div>
