@@ -1012,13 +1012,24 @@ function showPage(pageId) {
         return;
     }
 
-    // Update nav links
+    // Update sidebar nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('onclick')?.includes(`'${pageId}'`)) {
             link.classList.add('active');
         }
     });
+
+    // Update mobile bottom nav
+    document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('onclick')?.includes(`'${pageId}'`)) {
+            item.classList.add('active');
+        }
+    });
+
+    // Close mobile menu if open
+    closeMobileMenu();
 
     // Initialize page content
     if (pageId === 'market') loadMarketPrices();
@@ -1028,6 +1039,29 @@ function showPage(pageId) {
         loadCropCycles();
     }
     if (pageId === 'weather') loadWeatherPage();
+}
+
+// ============================================
+// MOBILE MENU FUNCTIONS
+// ============================================
+function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('active');
+    overlay.classList.toggle('show');
+}
+
+function closeMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    if (sidebar) sidebar.classList.remove('open');
+    if (menuBtn) menuBtn.classList.remove('active');
+    if (overlay) overlay.classList.remove('show');
 }
 
 // ============================================
