@@ -22,7 +22,8 @@ from app.db.models import (
     DiseaseLog,
     YieldPrediction,
     ActivityLog,
-    MarketPriceLog
+    MarketPriceLog,
+    OTPStore
 )
 
 __all__ = [
@@ -44,5 +45,6 @@ __all__ = [
     "DiseaseLog",
     "YieldPrediction",
     "ActivityLog",
-    "MarketPriceLog"
+    "MarketPriceLog",
+    "OTPStore"
 ]

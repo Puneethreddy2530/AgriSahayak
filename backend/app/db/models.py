@@ -67,6 +67,12 @@ class Farmer(Base):
     name = Column(String(100), nullable=False)
     phone = Column(String(15), unique=True, index=True, nullable=False)
     email = Column(String(100), nullable=True)
+    
+    # Authentication fields (Backend as source of truth)
+    username = Column(String(50), unique=True, index=True, nullable=True)
+    password_hash = Column(String(255), nullable=True)
+    role = Column(String(20), default="farmer")  # farmer, admin
+    
     language = Column(String(10), default="hi")
     state = Column(String(50), nullable=False)
     district = Column(String(50), nullable=False)
@@ -79,9 +85,23 @@ class Farmer(Base):
     
     # Relationships
     lands = relationship("Land", back_populates="farmer", cascade="all, delete-orphan")
+    disease_logs = relationship("DiseaseLog", back_populates="farmer", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Farmer {self.farmer_id}: {self.name}>"
+
+
+# OTP Storage Table (for stateful OTP verification)
+class OTPStore(Base):
+    """OTP storage for phone authentication"""
+    __tablename__ = "otp_store"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    phone = Column(String(15), index=True, nullable=False)
+    otp = Column(String(10), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    attempts = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Land(Base):
@@ -200,6 +220,7 @@ class DiseaseLog(Base):
     
     # Relationships
     crop_cycle = relationship("CropCycle", back_populates="disease_logs")
+    farmer = relationship("Farmer", back_populates="disease_logs")
     
     def __repr__(self):
         return f"<DiseaseLog {self.log_id}: {self.disease_name}>"
@@ -272,3 +293,50 @@ class MarketPriceLog(Base):
     
     recorded_date = Column(DateTime, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# ==================================================
+# COMPLAINT SYSTEM
+# ==================================================
+class ComplaintStatus(str, enum.Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in-progress"
+    RESOLVED = "resolved"
+    REJECTED = "rejected"
+
+
+class ComplaintUrgency(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class Complaint(Base):
+    """Farmer complaints for admin review"""
+    __tablename__ = "complaints"
+
+    id = Column(Integer, primary_key=True, index=True)
+    complaint_id = Column(String(20), unique=True, index=True, nullable=False)
+    farmer_id = Column(Integer, ForeignKey("farmers.id", ondelete="CASCADE"), nullable=False)
+    
+    category = Column(String(50), nullable=False)  # water, seeds, fertilizer, pests, market, subsidy, land, equipment, other
+    subject = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    urgency = Column(String(20), default="low")
+    
+    status = Column(String(20), default="pending")
+    
+    # Admin response
+    admin_response = Column(Text, nullable=True)
+    resolved_by = Column(String(100), nullable=True)
+    resolved_at = Column(DateTime, nullable=True)
+    
+    # Photo attachment (base64 or file path)
+    photo = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationship
+    farmer = relationship("Farmer", backref="complaints")

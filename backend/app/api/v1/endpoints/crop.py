@@ -83,7 +83,6 @@ async def recommend_crops(input_data: CropInput):
     Get AI-powered crop recommendations based on soil and climate parameters.
     Uses trained Random Forest model with 99%+ accuracy.
     """
-    """
     try:
         from starlette.concurrency import run_in_threadpool
         

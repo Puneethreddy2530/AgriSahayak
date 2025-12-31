@@ -117,9 +117,10 @@ def get_db_session():
 # ==================================================
 def check_db_connection() -> bool:
     """Check if database connection is working"""
+    from sqlalchemy import text
     try:
         with get_db_session() as db:
-            db.execute("SELECT 1")
+            db.execute(text("SELECT 1"))
         return True
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")

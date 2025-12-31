@@ -1,14 +1,19 @@
 """
 Crop Lifecycle Tracking Endpoints
 Track crops from sowing to harvest with ML-powered insights
+PERSISTED TO DATABASE - No in-memory storage
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime, timedelta
 from enum import Enum
-import uuid
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+from app.db import crud
+from app.db.models import CropCycle as CropCycleModel, Land as LandModel
 
 router = APIRouter()
 
@@ -40,7 +45,7 @@ class Season(str, Enum):
 
 
 # ==================================================
-# MODELS
+# PYDANTIC MODELS
 # ==================================================
 class CropCycleCreate(BaseModel):
     """Create a new crop cycle"""
@@ -51,27 +56,31 @@ class CropCycleCreate(BaseModel):
     expected_harvest: Optional[str] = Field(None, description="Auto-calculated if not provided")
 
 
-class CropCycle(BaseModel):
-    """Active crop cycle"""
+class CropCycleResponse(BaseModel):
+    """Active crop cycle response"""
     cycle_id: str
     land_id: str
     crop: str
-    season: Season
+    season: str
     sowing_date: str
     expected_harvest: str
-    growth_stage: GrowthStage
-    health_status: HealthStatus
+    growth_stage: str
+    health_status: str
     days_since_sowing: int
     yield_prediction: Optional[Dict] = None
     alerts: List[Dict] = []
     activities: List[Dict] = []
     is_active: bool = True
 
+    class Config:
+        from_attributes = True
+
 
 class ActivityLog(BaseModel):
     """Log farming activity"""
     activity_type: str = Field(..., description="irrigation/fertilizer/pesticide/weeding/other")
     description: str
+    cost: Optional[float] = 0
     date: Optional[str] = None
 
 
@@ -83,11 +92,8 @@ class DiseaseReport(BaseModel):
 
 
 # ==================================================
-# IN-MEMORY DATABASE
+# CROP DURATION DATA (Reference - not storage)
 # ==================================================
-CROP_CYCLES: Dict[str, dict] = {}
-
-# Crop duration data (days)
 CROP_DURATIONS = {
     "rice": {"total": 120, "stages": {"germination": 10, "vegetative": 40, "flowering": 25, "maturity": 35}},
     "wheat": {"total": 140, "stages": {"germination": 12, "vegetative": 45, "flowering": 30, "maturity": 40}},
@@ -103,56 +109,54 @@ CROP_DURATIONS = {
 # ==================================================
 # HELPER FUNCTIONS
 # ==================================================
-def calculate_growth_stage(crop: str, days: int) -> GrowthStage:
+def calculate_growth_stage(crop: str, days: int) -> str:
     """Calculate current growth stage based on days since sowing"""
     durations = CROP_DURATIONS.get(crop.lower(), {"total": 120, "stages": {"germination": 10, "vegetative": 40, "flowering": 25, "maturity": 35}})
     
     if days <= 0:
-        return GrowthStage.SOWING
+        return GrowthStage.SOWING.value
     
     stages = durations["stages"]
     cumulative = 0
     
     if days <= stages.get("germination", 10):
-        return GrowthStage.GERMINATION
+        return GrowthStage.GERMINATION.value
     cumulative += stages.get("germination", 10)
     
     if days <= cumulative + stages.get("vegetative", 40):
-        return GrowthStage.VEGETATIVE
+        return GrowthStage.VEGETATIVE.value
     cumulative += stages.get("vegetative", 40)
     
     if days <= cumulative + stages.get("flowering", 25):
-        return GrowthStage.FLOWERING
+        return GrowthStage.FLOWERING.value
     cumulative += stages.get("flowering", 25)
     
     if days <= cumulative + stages.get("maturity", 35):
-        return GrowthStage.MATURITY
+        return GrowthStage.MATURITY.value
     
-    return GrowthStage.HARVEST
+    return GrowthStage.HARVEST.value
 
 
-def generate_stage_alerts(crop: str, stage: GrowthStage, health: HealthStatus) -> List[Dict]:
+def generate_stage_alerts(crop: str, stage: str, health: str) -> List[Dict]:
     """Generate ML-powered alerts based on growth stage"""
-    alerts = []
-    
     stage_alerts = {
-        GrowthStage.GERMINATION: [
+        "germination": [
             {"type": "weather", "severity": "info", "message": "Monitor soil moisture - critical for germination"},
             {"type": "pest", "severity": "warning", "message": f"Watch for cutworms and root grubs in {crop}"}
         ],
-        GrowthStage.VEGETATIVE: [
+        "vegetative": [
             {"type": "nutrition", "severity": "info", "message": "Apply nitrogen fertilizer for healthy leaf growth"},
             {"type": "disease", "severity": "warning", "message": "High humidity increases fungal disease risk"}
         ],
-        GrowthStage.FLOWERING: [
+        "flowering": [
             {"type": "weather", "severity": "critical", "message": "Avoid water stress during flowering - affects yield"},
             {"type": "pest", "severity": "warning", "message": "Monitor for aphids and thrips"}
         ],
-        GrowthStage.MATURITY: [
+        "maturity": [
             {"type": "harvest", "severity": "info", "message": "Check crop maturity indicators regularly"},
             {"type": "weather", "severity": "warning", "message": "Avoid harvesting if rain is expected"}
         ],
-        GrowthStage.HARVEST: [
+        "harvest": [
             {"type": "market", "severity": "info", "message": "Check current mandi prices before selling"},
             {"type": "storage", "severity": "info", "message": "Ensure proper drying before storage"}
         ]
@@ -160,62 +164,101 @@ def generate_stage_alerts(crop: str, stage: GrowthStage, health: HealthStatus) -
     
     alerts = stage_alerts.get(stage, [])
     
-    if health == HealthStatus.AT_RISK:
+    if health == "at_risk":
         alerts.insert(0, {"type": "disease", "severity": "critical", "message": "🔴 Disease risk detected - inspect immediately"})
-    elif health == HealthStatus.INFECTED:
+    elif health == "infected":
         alerts.insert(0, {"type": "disease", "severity": "critical", "message": "🚨 Active disease detected - treatment required"})
     
     return alerts
 
 
-def predict_yield_for_cycle(cycle: dict) -> Dict:
-    """Generate yield prediction using ML model data"""
-    crop = cycle["crop"].lower()
-    
-    # Base yields per acre (kg)
+def predict_yield_for_cycle(crop: str, health_status: str, growth_stage: str) -> Dict:
+    """Generate yield prediction"""
     base_yields = {
         "rice": 2500, "wheat": 3000, "maize": 4000, "cotton": 500,
         "tomato": 25000, "potato": 20000, "onion": 15000, "sugarcane": 70000
     }
     
-    base = base_yields.get(crop, 2000)
+    base = base_yields.get(crop.lower(), 2000)
     
-    # Adjust based on health
     health_multiplier = {
-        HealthStatus.HEALTHY: 1.0,
-        HealthStatus.AT_RISK: 0.85,
-        HealthStatus.INFECTED: 0.7,
-        HealthStatus.RECOVERED: 0.9
+        "healthy": 1.0, "at_risk": 0.85, "infected": 0.7, "recovered": 0.9
     }
     
-    multiplier = health_multiplier.get(cycle["health_status"], 1.0)
+    multiplier = health_multiplier.get(health_status, 1.0)
     predicted = base * multiplier
     
     return {
         "predicted_yield_kg_per_acre": round(predicted, 0),
-        "confidence": 0.85 if cycle["health_status"] == HealthStatus.HEALTHY else 0.7,
+        "confidence": 0.85 if health_status == "healthy" else 0.7,
         "factors": {
             "crop_type": crop,
-            "health_status": cycle["health_status"],
-            "growth_stage": cycle["growth_stage"]
+            "health_status": health_status,
+            "growth_stage": growth_stage
         },
-        "market_price_estimate": f"₹{round(predicted * 20 / 100, 0)}/quintal"  # Demo price
+        "market_price_estimate": f"₹{round(predicted * 20 / 100, 0)}/quintal"
     }
 
 
+def cycle_to_response(cycle: CropCycleModel, db: Session) -> CropCycleResponse:
+    """Convert SQLAlchemy model to response with computed fields"""
+    sowing = cycle.sowing_date
+    days = (datetime.now() - sowing).days if sowing else 0
+    growth_stage = calculate_growth_stage(cycle.crop, days)
+    health = cycle.health_status or "healthy"
+    
+    # Get activities from activity logs
+    activities = []
+    from app.db.models import ActivityLog as ActivityLogModel
+    activity_logs = db.query(ActivityLogModel).filter(
+        ActivityLogModel.crop_cycle_id == cycle.id
+    ).order_by(ActivityLogModel.activity_date.desc()).all()
+    
+    for log in activity_logs:
+        activities.append({
+            "id": str(log.id),
+            "type": log.activity_type,
+            "description": log.description,
+            "cost": log.cost,
+            "date": log.activity_date.isoformat() if log.activity_date else None
+        })
+    
+    # Get land_id
+    land_id = cycle.land.land_id if cycle.land else ""
+    
+    return CropCycleResponse(
+        cycle_id=cycle.cycle_id,
+        land_id=land_id,
+        crop=cycle.crop,
+        season=cycle.season or "kharif",
+        sowing_date=sowing.strftime("%Y-%m-%d") if sowing else "",
+        expected_harvest=cycle.expected_harvest.strftime("%Y-%m-%d") if cycle.expected_harvest else "",
+        growth_stage=growth_stage,
+        health_status=health,
+        days_since_sowing=max(0, days),
+        yield_prediction=predict_yield_for_cycle(cycle.crop, health, growth_stage),
+        alerts=generate_stage_alerts(cycle.crop, growth_stage, health),
+        activities=activities,
+        is_active=cycle.is_active
+    )
+
+
 # ==================================================
-# ENDPOINTS
+# ENDPOINTS - DATABASE PERSISTED
 # ==================================================
-@router.post("/start", response_model=CropCycle)
-async def start_crop_cycle(cycle: CropCycleCreate):
+@router.post("/start", response_model=CropCycleResponse)
+async def start_crop_cycle(cycle: CropCycleCreate, db: Session = Depends(get_db)):
     """
-    Start a new crop cycle for a land parcel.
+    Start a new crop cycle for a land parcel. PERSISTED TO DATABASE.
     
     - Auto-calculates expected harvest date
     - Initializes growth stage tracking
     - Enables ML-powered alerts
     """
-    cycle_id = f"CC{str(uuid.uuid4())[:6].upper()}"
+    # Find land by land_id
+    land = crud.get_land_by_id(db, cycle.land_id)
+    if not land:
+        raise HTTPException(status_code=404, detail="Land not found")
     
     # Calculate expected harvest
     crop_lower = cycle.crop.lower()
@@ -223,182 +266,204 @@ async def start_crop_cycle(cycle: CropCycleCreate):
     sowing = datetime.strptime(cycle.sowing_date, "%Y-%m-%d")
     harvest = sowing + timedelta(days=duration)
     
-    days_since = (datetime.now() - sowing).days
+    if cycle.expected_harvest:
+        harvest = datetime.strptime(cycle.expected_harvest, "%Y-%m-%d")
     
-    cycle_data = {
-        "cycle_id": cycle_id,
-        "land_id": cycle.land_id,
-        "crop": cycle.crop,
-        "season": cycle.season.value,
-        "sowing_date": cycle.sowing_date,
-        "expected_harvest": cycle.expected_harvest or harvest.strftime("%Y-%m-%d"),
-        "growth_stage": calculate_growth_stage(cycle.crop, days_since).value,
-        "health_status": HealthStatus.HEALTHY.value,
-        "days_since_sowing": max(0, days_since),
-        "alerts": [],
-        "activities": [],
-        "is_active": True
-    }
-    
-    # Generate initial alerts and yield prediction
-    cycle_data["alerts"] = generate_stage_alerts(
-        cycle.crop, 
-        GrowthStage(cycle_data["growth_stage"]),
-        HealthStatus(cycle_data["health_status"])
+    # Create in database
+    db_cycle = crud.create_crop_cycle(
+        db=db,
+        land_db_id=land.id,
+        crop=cycle.crop,
+        season=cycle.season.value,
+        sowing_date=sowing,
+        expected_harvest=harvest
     )
-    cycle_data["yield_prediction"] = predict_yield_for_cycle(cycle_data)
     
-    CROP_CYCLES[cycle_id] = cycle_data
-    return CropCycle(**cycle_data)
+    return cycle_to_response(db_cycle, db)
 
 
-@router.get("/{cycle_id}", response_model=CropCycle)
-async def get_crop_cycle(cycle_id: str):
-    """Get details of a specific crop cycle with updated ML insights"""
-    if cycle_id not in CROP_CYCLES:
+@router.get("/{cycle_id}", response_model=CropCycleResponse)
+async def get_crop_cycle(cycle_id: str, db: Session = Depends(get_db)):
+    """Get details of a specific crop cycle with updated ML insights - FROM DATABASE"""
+    cycle = crud.get_crop_cycle_by_id(db, cycle_id)
+    if not cycle:
         raise HTTPException(status_code=404, detail="Crop cycle not found")
     
-    cycle = CROP_CYCLES[cycle_id]
-    
-    # Update dynamic fields
-    sowing = datetime.strptime(cycle["sowing_date"], "%Y-%m-%d")
-    days = (datetime.now() - sowing).days
-    cycle["days_since_sowing"] = max(0, days)
-    cycle["growth_stage"] = calculate_growth_stage(cycle["crop"], days).value
-    cycle["alerts"] = generate_stage_alerts(
-        cycle["crop"],
-        GrowthStage(cycle["growth_stage"]),
-        HealthStatus(cycle["health_status"])
-    )
-    cycle["yield_prediction"] = predict_yield_for_cycle(cycle)
-    
-    return CropCycle(**cycle)
+    return cycle_to_response(cycle, db)
 
 
 @router.get("/land/{land_id}")
-async def get_land_cycles(land_id: str, active_only: bool = True):
-    """Get all crop cycles for a land parcel"""
-    cycles = [c for c in CROP_CYCLES.values() if c["land_id"] == land_id]
-    if active_only:
-        cycles = [c for c in cycles if c["is_active"]]
+async def get_land_cycles(land_id: str, active_only: bool = True, db: Session = Depends(get_db)):
+    """Get all crop cycles for a land parcel - FROM DATABASE"""
+    land = crud.get_land_by_id(db, land_id)
+    if not land:
+        raise HTTPException(status_code=404, detail="Land not found")
     
-    return {"land_id": land_id, "total": len(cycles), "cycles": cycles}
+    cycles = crud.get_land_crop_cycles(db, land.id, active_only=active_only)
+    
+    return {
+        "land_id": land_id, 
+        "total": len(cycles), 
+        "cycles": [cycle_to_response(c, db) for c in cycles]
+    }
 
 
 @router.post("/{cycle_id}/activity")
-async def log_activity(cycle_id: str, activity: ActivityLog):
-    """Log farming activity (irrigation, fertilizer, etc.)"""
-    if cycle_id not in CROP_CYCLES:
+async def log_activity(cycle_id: str, activity: ActivityLog, db: Session = Depends(get_db)):
+    """Log farming activity (irrigation, fertilizer, etc.) - PERSISTED TO DATABASE"""
+    cycle = crud.get_crop_cycle_by_id(db, cycle_id)
+    if not cycle:
         raise HTTPException(status_code=404, detail="Crop cycle not found")
     
-    activity_entry = {
-        "id": str(uuid.uuid4())[:8],
-        "type": activity.activity_type,
-        "description": activity.description,
-        "date": activity.date or datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "logged_at": datetime.now().isoformat()
-    }
+    activity_date = datetime.now()
+    if activity.date:
+        try:
+            activity_date = datetime.strptime(activity.date, "%Y-%m-%d")
+        except:
+            activity_date = datetime.now()
     
-    CROP_CYCLES[cycle_id]["activities"].append(activity_entry)
-    return {"message": "Activity logged", "activity": activity_entry}
+    db_activity = crud.create_activity_log(
+        db=db,
+        crop_cycle_db_id=cycle.id,
+        activity_type=activity.activity_type,
+        activity_date=activity_date,
+        description=activity.description,
+        cost=activity.cost or 0
+    )
+    
+    # Update cycle costs
+    if activity.cost and activity.cost > 0:
+        cost_field = f"{activity.activity_type}_cost"
+        if hasattr(cycle, cost_field):
+            current = getattr(cycle, cost_field) or 0
+            setattr(cycle, cost_field, current + activity.cost)
+        cycle.total_cost = (cycle.total_cost or 0) + activity.cost
+        db.commit()
+    
+    return {
+        "message": "Activity logged", 
+        "activity_id": db_activity.id,
+        "activity": {
+            "type": activity.activity_type,
+            "description": activity.description,
+            "cost": activity.cost,
+            "date": activity_date.isoformat()
+        }
+    }
 
 
 @router.post("/{cycle_id}/report-disease")
-async def report_disease(cycle_id: str, report: DiseaseReport):
+async def report_disease(cycle_id: str, report: DiseaseReport, db: Session = Depends(get_db)):
     """
-    Report disease detection from ML model.
+    Report disease detection from ML model. PERSISTED TO DATABASE.
     Updates health status and triggers alerts.
     """
-    if cycle_id not in CROP_CYCLES:
+    cycle = crud.get_crop_cycle_by_id(db, cycle_id)
+    if not cycle:
         raise HTTPException(status_code=404, detail="Crop cycle not found")
-    
-    cycle = CROP_CYCLES[cycle_id]
     
     # Update health status based on confidence
     if report.confidence > 0.8:
-        cycle["health_status"] = HealthStatus.INFECTED.value
+        new_health = "infected"
     elif report.confidence > 0.5:
-        cycle["health_status"] = HealthStatus.AT_RISK.value
+        new_health = "at_risk"
+    else:
+        new_health = cycle.health_status or "healthy"
     
-    # Log the disease event
-    disease_event = {
-        "id": str(uuid.uuid4())[:8],
-        "type": "disease_detected",
-        "disease": report.disease_name,
-        "confidence": report.confidence,
-        "affected_percent": report.affected_area_percent,
-        "date": datetime.now().isoformat()
-    }
-    cycle["activities"].append(disease_event)
+    crud.update_crop_cycle_health(db, cycle_id, new_health)
     
-    # Regenerate alerts
-    cycle["alerts"] = generate_stage_alerts(
-        cycle["crop"],
-        GrowthStage(cycle["growth_stage"]),
-        HealthStatus(cycle["health_status"])
+    # Log the disease detection
+    farmer_id = cycle.land.farmer_id if cycle.land else None
+    crud.create_disease_log(
+        db=db,
+        disease_name=report.disease_name,
+        confidence=report.confidence,
+        crop_cycle_db_id=cycle.id,
+        farmer_db_id=farmer_id,
+        affected_area_percent=report.affected_area_percent,
+        severity="severe" if report.confidence > 0.8 else "moderate"
     )
     
-    # Update yield prediction
-    cycle["yield_prediction"] = predict_yield_for_cycle(cycle)
+    # Refresh cycle
+    db.refresh(cycle)
+    
+    growth_stage = calculate_growth_stage(cycle.crop, (datetime.now() - cycle.sowing_date).days)
+    yield_pred = predict_yield_for_cycle(cycle.crop, new_health, growth_stage)
+    alerts = generate_stage_alerts(cycle.crop, growth_stage, new_health)
     
     return {
-        "message": "Disease reported",
-        "new_health_status": cycle["health_status"],
-        "updated_yield_prediction": cycle["yield_prediction"],
-        "urgent_alerts": [a for a in cycle["alerts"] if a["severity"] == "critical"]
+        "message": "Disease reported and logged",
+        "new_health_status": new_health,
+        "updated_yield_prediction": yield_pred,
+        "urgent_alerts": [a for a in alerts if a["severity"] == "critical"]
     }
 
 
 @router.post("/{cycle_id}/update-health")
-async def update_health_status(cycle_id: str, status: HealthStatus):
-    """Manually update crop health status"""
-    if cycle_id not in CROP_CYCLES:
+async def update_health_status(cycle_id: str, status: HealthStatus, db: Session = Depends(get_db)):
+    """Manually update crop health status - PERSISTED TO DATABASE"""
+    cycle = crud.get_crop_cycle_by_id(db, cycle_id)
+    if not cycle:
         raise HTTPException(status_code=404, detail="Crop cycle not found")
     
-    CROP_CYCLES[cycle_id]["health_status"] = status.value
-    CROP_CYCLES[cycle_id]["yield_prediction"] = predict_yield_for_cycle(CROP_CYCLES[cycle_id])
+    crud.update_crop_cycle_health(db, cycle_id, status.value)
+    db.refresh(cycle)
     
-    return {"message": "Health status updated", "new_status": status.value}
+    growth_stage = calculate_growth_stage(cycle.crop, (datetime.now() - cycle.sowing_date).days)
+    yield_pred = predict_yield_for_cycle(cycle.crop, status.value, growth_stage)
+    
+    return {"message": "Health status updated", "new_status": status.value, "yield_prediction": yield_pred}
 
 
 @router.post("/{cycle_id}/complete")
 async def complete_crop_cycle(
     cycle_id: str,
     actual_yield: float = Query(..., description="Actual yield in kg"),
-    notes: Optional[str] = None
+    selling_price: Optional[float] = Query(None, description="Selling price per kg"),
+    notes: Optional[str] = None,
+    db: Session = Depends(get_db)
 ):
-    """Mark crop cycle as complete with actual yield data"""
-    if cycle_id not in CROP_CYCLES:
+    """Mark crop cycle as complete with actual yield data - PERSISTED TO DATABASE"""
+    cycle = crud.get_crop_cycle_by_id(db, cycle_id)
+    if not cycle:
         raise HTTPException(status_code=404, detail="Crop cycle not found")
     
-    cycle = CROP_CYCLES[cycle_id]
-    cycle["is_active"] = False
-    cycle["growth_stage"] = GrowthStage.HARVEST.value
-    cycle["actual_yield_kg"] = actual_yield
-    cycle["completion_date"] = datetime.now().isoformat()
-    cycle["completion_notes"] = notes
+    # Get predicted yield before completing
+    growth_stage = calculate_growth_stage(cycle.crop, (datetime.now() - cycle.sowing_date).days)
+    predicted = predict_yield_for_cycle(cycle.crop, cycle.health_status or "healthy", growth_stage)
+    predicted_yield = predicted.get("predicted_yield_kg_per_acre", 0)
     
-    # Compare with prediction
-    predicted = cycle.get("yield_prediction", {}).get("predicted_yield_kg_per_acre", 0)
-    accuracy = (1 - abs(actual_yield - predicted) / predicted) * 100 if predicted > 0 else 0
+    # Complete the cycle
+    completed = crud.complete_crop_cycle(db, cycle_id, actual_yield, selling_price)
+    
+    if notes:
+        completed.notes = notes
+        db.commit()
+    
+    # Calculate accuracy
+    accuracy = (1 - abs(actual_yield - predicted_yield) / predicted_yield) * 100 if predicted_yield > 0 else 0
     
     return {
         "message": "Crop cycle completed",
         "cycle_id": cycle_id,
         "actual_yield": actual_yield,
-        "predicted_yield": predicted,
+        "predicted_yield": predicted_yield,
         "prediction_accuracy": f"{accuracy:.1f}%",
+        "revenue": completed.total_revenue,
+        "profit": completed.profit,
         "notes": notes
     }
 
 
 @router.get("/active/all")
-async def get_all_active_cycles():
-    """Get all active crop cycles with alerts summary"""
-    active = [CropCycle(**c) for c in CROP_CYCLES.values() if c["is_active"]]
+async def get_all_active_cycles(db: Session = Depends(get_db)):
+    """Get all active crop cycles with alerts summary - FROM DATABASE"""
+    cycles = crud.get_active_crop_cycles(db, limit=100)
+    
+    responses = [cycle_to_response(c, db) for c in cycles]
     
     critical_alerts = []
-    for c in active:
+    for c in responses:
         for alert in c.alerts:
             if alert["severity"] == "critical":
                 critical_alerts.append({
@@ -408,7 +473,7 @@ async def get_all_active_cycles():
                 })
     
     return {
-        "total_active": len(active),
-        "cycles": active,
+        "total_active": len(responses),
+        "cycles": responses,
         "critical_alerts": critical_alerts
     }

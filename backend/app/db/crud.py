@@ -1,6 +1,7 @@
 """
 CRUD Operations for Database Models
 Reusable functions for creating, reading, updating, and deleting records
+ALL PERSISTENCE OPERATIONS GO THROUGH THIS MODULE
 """
 
 from sqlalchemy.orm import Session
@@ -57,6 +58,11 @@ def get_farmer_by_id(db: Session, farmer_id: str) -> Optional[Farmer]:
 def get_farmer_by_phone(db: Session, phone: str) -> Optional[Farmer]:
     """Get farmer by phone number"""
     return db.query(Farmer).filter(Farmer.phone == phone).first()
+
+
+def get_farmer_by_username(db: Session, username: str) -> Optional[Farmer]:
+    """Get farmer by username"""
+    return db.query(Farmer).filter(Farmer.username == username.lower()).first()
 
 
 def get_farmers(db: Session, skip: int = 0, limit: int = 100, state: Optional[str] = None) -> List[Farmer]:

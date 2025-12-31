@@ -27,9 +27,9 @@ class Config:
     DATA_DIR = Path(__file__).parent.parent.parent / 'data' / 'raw' / 'plant_disease'
     MODEL_DIR = Path(__file__).parent.parent.parent / 'models'
     
-    BATCH_SIZE = 32
-    EPOCHS = 12  # ~10 min run
-    LEARNING_RATE = 1e-3  # Higher LR for faster learning
+    BATCH_SIZE = 48  # Increase for RTX 3050 6GB
+    EPOCHS = 20  # More epochs for better accuracy
+    LEARNING_RATE = 3e-4  # Slightly lower for stability
     WEIGHT_DECAY = 0.01
     
     # NO Mixup/CutMix - direct learning
@@ -236,11 +236,11 @@ def main():
         optimizer, max_lr=config.LEARNING_RATE, 
         steps_per_epoch=len(train_loader), epochs=config.EPOCHS
     )
-    scaler = torch.amp.GradScaler('cuda')
+    scaler = torch.cuda.amp.GradScaler()
     
     # Training
     best_acc = 0.0
-    print(f"\n🚀 Starting training for {config.EPOCHS} epochs (~10 min)...")
+    print(f"\n🚀 Starting training for {config.EPOCHS} epochs...")
     print(f"🔧 No Mixup/CutMix | Label Smoothing: {config.LABEL_SMOOTHING}")
     print(f"🔧 OneCycleLR | Higher LR for faster convergence")
     print()

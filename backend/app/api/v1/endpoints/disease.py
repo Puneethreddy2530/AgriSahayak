@@ -1,16 +1,21 @@
 """
 Disease Detection Endpoints
 CNN-based plant disease detection from leaf images with Top-3 predictions
+DISEASE DETECTIONS ARE PERSISTED TO DATABASE
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 import io
 import base64
 from pathlib import Path
+from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.ml_service import predict_disease
+from app.db.database import get_db
+from app.db import crud
 
 router = APIRouter()
 
@@ -161,15 +166,23 @@ def format_disease_name(name: str) -> str:
 
 @router.post("/detect", response_model=DiseaseResponse)
 async def detect_disease(
-    image: UploadFile = File(..., description="Plant leaf image (JPG/PNG)")
+    image: UploadFile = File(..., description="Plant leaf image (JPG/PNG)"),
+    farmer_id: Optional[str] = Query(None, description="Farmer ID to log detection"),
+    crop_cycle_id: Optional[str] = Query(None, description="Crop cycle ID to associate"),
+    db: Session = Depends(get_db)
 ):
     """
     Detect plant diseases from leaf images using CNN.
     Returns Top-3 predictions for better diagnosis accuracy.
+    PERSISTS DETECTION TO DATABASE for research and history.
     """
     
-    # Validate file type
-    if not image.content_type in ["image/jpeg", "image/png", "image/jpg"]:
+    # Validate file type - more lenient check
+    valid_types = ["image/jpeg", "image/png", "image/jpg", "application/octet-stream"]
+    filename_lower = (image.filename or "").lower()
+    is_valid_extension = filename_lower.endswith(('.jpg', '.jpeg', '.png'))
+    
+    if image.content_type not in valid_types and not is_valid_extension:
         raise HTTPException(
             status_code=400, 
             detail="Invalid file type. Please upload JPG or PNG image."
@@ -212,6 +225,36 @@ async def detect_disease(
             }
             for p in predictions[:3]
         ]
+        
+        # PERSIST TO DATABASE - Log detection for research
+        farmer_db_id = None
+        cycle_db_id = None
+        
+        if farmer_id:
+            farmer = crud.get_farmer_by_id(db, farmer_id)
+            if farmer:
+                farmer_db_id = farmer.id
+        
+        if crop_cycle_id:
+            cycle = crud.get_crop_cycle_by_id(db, crop_cycle_id)
+            if cycle:
+                cycle_db_id = cycle.id
+        
+        # Create disease log in database
+        try:
+            crud.create_disease_log(
+                db=db,
+                disease_name=disease_key,
+                confidence=top_pred['confidence'],
+                crop_cycle_db_id=cycle_db_id,
+                farmer_db_id=farmer_db_id,
+                disease_hindi=format_disease_name(disease_key),
+                severity=info["severity"],
+                treatment_recommended=info["treatment"][0] if info["treatment"] else None
+            )
+        except Exception as log_error:
+            # Don't fail detection if logging fails
+            print(f"Warning: Could not log disease detection: {log_error}")
         
         return DiseaseResponse(
             success=True,

@@ -1,6 +1,7 @@
 """
 Authentication Module for AgriSahayak
-OTP-based phone login with JWT tokens
+OTP-based phone login with JWT tokens + Username/Password
+BACKEND AS SOURCE OF TRUTH - Frontend uses these APIs
 Roles: Farmer, Admin
 """
 
@@ -11,8 +12,16 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional, Dict
+from sqlalchemy.orm import Session
 import random
 import os
+import logging
+
+from app.db.database import get_db
+from app.db import crud
+from app.db.models import Farmer, OTPStore
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 security = HTTPBearer()
@@ -25,12 +34,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 OTP_EXPIRE_MINUTES = 10
 
-# Password hashing (for admin accounts)
+# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ==================================================
-# MODELS
+# PYDANTIC MODELS
 # ==================================================
 class OTPRequest(BaseModel):
     """Request OTP for login"""
@@ -41,6 +50,23 @@ class OTPVerify(BaseModel):
     """Verify OTP and get token"""
     phone: str
     otp: str = Field(..., min_length=4, max_length=6)
+
+
+class UsernamePasswordLogin(BaseModel):
+    """Username/Password login (alternative to OTP)"""
+    username: str = Field(..., min_length=4)
+    password: str = Field(..., min_length=6)
+
+
+class UsernamePasswordRegister(BaseModel):
+    """Register with username/password"""
+    name: str = Field(..., min_length=2)
+    phone: str = Field(..., pattern=r"^[6-9]\d{9}$")
+    username: str = Field(..., min_length=4, max_length=50)
+    password: str = Field(..., min_length=6)
+    state: str
+    district: str
+    language: str = "hi"
 
 
 class TokenResponse(BaseModel):
@@ -56,61 +82,74 @@ class UserInfo(BaseModel):
     farmer_id: Optional[str] = None
     phone: str
     name: Optional[str] = None
+    username: Optional[str] = None
     role: str = "farmer"
 
 
 # ==================================================
-# IN-MEMORY OTP STORE (Use Redis in production)
-# ==================================================
-OTP_STORE: Dict[str, Dict] = {}
-
-# Demo admin accounts
-ADMIN_ACCOUNTS = {
-    "9999999999": {"name": "Admin User", "role": "admin", "password_hash": pwd_context.hash("admin123")}
-}
-
-
-# ==================================================
-# OTP FUNCTIONS
+# DATABASE OTP FUNCTIONS
 # ==================================================
 def generate_otp() -> str:
     """Generate 6-digit OTP"""
     return str(random.randint(100000, 999999))
 
 
-def store_otp(phone: str, otp: str):
-    """Store OTP with expiry"""
-    OTP_STORE[phone] = {
-        "otp": otp,
-        "expires_at": datetime.now() + timedelta(minutes=OTP_EXPIRE_MINUTES),
-        "attempts": 0
-    }
+def store_otp_db(db: Session, phone: str, otp: str):
+    """Store OTP in database with expiry"""
+    # Delete any existing OTP for this phone
+    db.query(OTPStore).filter(OTPStore.phone == phone).delete()
+    
+    otp_record = OTPStore(
+        phone=phone,
+        otp=otp,
+        expires_at=datetime.now() + timedelta(minutes=OTP_EXPIRE_MINUTES),
+        attempts=0
+    )
+    db.add(otp_record)
+    db.commit()
 
 
-def verify_otp(phone: str, otp: str) -> bool:
-    """Verify OTP"""
-    if phone not in OTP_STORE:
+def verify_otp_db(db: Session, phone: str, otp: str) -> bool:
+    """Verify OTP from database"""
+    record = db.query(OTPStore).filter(OTPStore.phone == phone).first()
+    
+    if not record:
         return False
     
-    stored = OTP_STORE[phone]
-    
     # Check expiry
-    if datetime.now() > stored["expires_at"]:
-        del OTP_STORE[phone]
+    if datetime.now() > record.expires_at:
+        db.delete(record)
+        db.commit()
         return False
     
     # Check attempts (max 3)
-    if stored["attempts"] >= 3:
-        del OTP_STORE[phone]
+    if record.attempts >= 3:
+        db.delete(record)
+        db.commit()
         return False
     
-    stored["attempts"] += 1
+    record.attempts += 1
+    db.commit()
     
-    if stored["otp"] == otp:
-        del OTP_STORE[phone]
+    if record.otp == otp:
+        db.delete(record)
+        db.commit()
         return True
     
     return False
+
+
+# ==================================================
+# PASSWORD FUNCTIONS
+# ==================================================
+def hash_password(password: str) -> str:
+    """Hash password using bcrypt"""
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash"""
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 # ==================================================
@@ -149,6 +188,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         farmer_id=payload.get("farmer_id"),
         phone=payload.get("phone"),
         name=payload.get("name"),
+        username=payload.get("username"),
         role=payload.get("role", "farmer")
     )
 
@@ -166,12 +206,101 @@ def require_role(required_role: str):
 
 
 # ==================================================
-# ENDPOINTS
+# ENDPOINTS - DATABASE PERSISTED
 # ==================================================
-@router.post("/request-otp")
-async def request_otp(request: OTPRequest):
+@router.post("/register")
+async def register_with_password(request: UsernamePasswordRegister, db: Session = Depends(get_db)):
     """
-    Request OTP for phone login.
+    Register a new farmer with username/password. PERSISTED TO DATABASE.
+    This is the primary registration method.
+    """
+    # Check if phone already registered
+    existing_phone = crud.get_farmer_by_phone(db, request.phone)
+    if existing_phone:
+        raise HTTPException(status_code=400, detail="Phone number already registered")
+    
+    # Check if username taken
+    existing_username = db.query(Farmer).filter(Farmer.username == request.username.lower()).first()
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Username already taken")
+    
+    # Create farmer with hashed password
+    farmer = crud.create_farmer(
+        db=db,
+        name=request.name,
+        phone=request.phone,
+        state=request.state,
+        district=request.district,
+        language=request.language
+    )
+    
+    # Update with auth fields
+    farmer.username = request.username.lower()
+    farmer.password_hash = hash_password(request.password)
+    farmer.role = "farmer"
+    db.commit()
+    db.refresh(farmer)
+    
+    # Create token
+    user_data = {
+        "farmer_id": farmer.farmer_id,
+        "phone": farmer.phone,
+        "name": farmer.name,
+        "username": farmer.username,
+        "role": "farmer"
+    }
+    token = create_access_token(user_data)
+    
+    return TokenResponse(
+        access_token=token,
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=user_data
+    )
+
+
+@router.post("/login")
+async def login_with_password(request: UsernamePasswordLogin, db: Session = Depends(get_db)):
+    """
+    Login with username/password. FROM DATABASE.
+    Supports both username and phone number as identifier.
+    """
+    identifier = request.username.lower().strip()
+    
+    # Find user by username or phone
+    farmer = db.query(Farmer).filter(
+        (Farmer.username == identifier) | (Farmer.phone == identifier)
+    ).first()
+    
+    if not farmer:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    if not farmer.password_hash:
+        raise HTTPException(status_code=401, detail="Password not set. Please register first.")
+    
+    if not verify_password(request.password, farmer.password_hash):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    
+    # Create token
+    user_data = {
+        "farmer_id": farmer.farmer_id,
+        "phone": farmer.phone,
+        "name": farmer.name,
+        "username": farmer.username,
+        "role": farmer.role or "farmer"
+    }
+    token = create_access_token(user_data)
+    
+    return TokenResponse(
+        access_token=token,
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=user_data
+    )
+
+
+@router.post("/request-otp")
+async def request_otp(request: OTPRequest, db: Session = Depends(get_db)):
+    """
+    Request OTP for phone login. PERSISTED TO DATABASE.
     
     In production: Send OTP via SMS (Twilio/AWS SNS)
     For demo: OTP is returned in response (remove in prod!)
@@ -182,12 +311,12 @@ async def request_otp(request: OTPRequest):
     if not phone.isdigit() or len(phone) != 10:
         raise HTTPException(status_code=400, detail="Invalid phone number. Use 10 digits.")
     
-    # Generate and store OTP
+    # Generate and store OTP in database
     otp = generate_otp()
-    store_otp(phone, otp)
+    store_otp_db(db, phone, otp)
     
     # In production, integrate with Twilio/SNS here
-    logger.info(f"Sending OTP to {phone}: {otp}")
+    logger.info(f"OTP requested for {phone[-4:]}: {otp}")
     
     return {
         "message": "OTP sent successfully",
@@ -199,30 +328,36 @@ async def request_otp(request: OTPRequest):
 
 
 @router.post("/verify-otp", response_model=TokenResponse)
-async def verify_otp_login(request: OTPVerify):
+async def verify_otp_login(request: OTPVerify, db: Session = Depends(get_db)):
     """
-    Verify OTP and get JWT token.
+    Verify OTP and get JWT token. FROM DATABASE.
     Creates new farmer account if first login.
     """
     phone = request.phone.strip()
     
-    if not verify_otp(phone, request.otp):
+    if not verify_otp_db(db, phone, request.otp):
         raise HTTPException(status_code=401, detail="Invalid or expired OTP")
     
-    # Check if admin
-    if phone in ADMIN_ACCOUNTS:
+    # Find or create farmer
+    farmer = crud.get_farmer_by_phone(db, phone)
+    
+    if farmer:
         user_data = {
-            "phone": phone,
-            "name": ADMIN_ACCOUNTS[phone]["name"],
-            "role": "admin"
+            "farmer_id": farmer.farmer_id,
+            "phone": farmer.phone,
+            "name": farmer.name,
+            "username": farmer.username,
+            "role": farmer.role or "farmer"
         }
     else:
-        # Regular farmer - would fetch/create from database
+        # New farmer - create minimal profile (needs to complete registration)
         user_data = {
             "phone": phone,
-            "farmer_id": f"F{phone[-6:]}",  # Demo ID
-            "name": None,  # Will be set after registration
-            "role": "farmer"
+            "farmer_id": None,
+            "name": None,
+            "username": None,
+            "role": "farmer",
+            "needs_registration": True
         }
     
     # Create token
@@ -236,10 +371,28 @@ async def verify_otp_login(request: OTPVerify):
 
 
 @router.get("/me")
-async def get_current_user_info(user: UserInfo = Depends(get_current_user)):
-    """Get current logged-in user info"""
+async def get_current_user_info(
+    user: UserInfo = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get current logged-in user info - FROM DATABASE"""
+    if user.farmer_id:
+        farmer = crud.get_farmer_by_id(db, user.farmer_id)
+        if farmer:
+            return {
+                "farmer_id": farmer.farmer_id,
+                "phone": farmer.phone,
+                "name": farmer.name,
+                "username": farmer.username,
+                "role": farmer.role or "farmer",
+                "state": farmer.state,
+                "district": farmer.district,
+                "language": farmer.language,
+                "is_authenticated": True,
+                "lands_count": len(farmer.lands)
+            }
+    
     return {
-        "farmer_id": user.farmer_id,
         "phone": user.phone,
         "name": user.name,
         "role": user.role,
@@ -262,22 +415,68 @@ async def verify_token(user: UserInfo = Depends(get_current_user)):
     return {"valid": True, "user": user}
 
 
+@router.post("/change-password")
+async def change_password(
+    old_password: str,
+    new_password: str,
+    user: UserInfo = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Change user password - PERSISTED TO DATABASE"""
+    if not user.farmer_id:
+        raise HTTPException(status_code=400, detail="User not registered")
+    
+    farmer = crud.get_farmer_by_id(db, user.farmer_id)
+    if not farmer:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not farmer.password_hash:
+        raise HTTPException(status_code=400, detail="Password not set")
+    
+    if not verify_password(old_password, farmer.password_hash):
+        raise HTTPException(status_code=401, detail="Incorrect old password")
+    
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    
+    farmer.password_hash = hash_password(new_password)
+    db.commit()
+    
+    return {"message": "Password changed successfully"}
+
+
 # ==================================================
 # ADMIN ENDPOINTS
 # ==================================================
 @router.get("/admin/users")
-async def list_users(user: UserInfo = Depends(require_role("admin"))):
-    """Admin: List all users (requires admin role)"""
-    # Would fetch from database in production
+async def list_users(
+    skip: int = 0,
+    limit: int = 50,
+    user: UserInfo = Depends(require_role("admin")),
+    db: Session = Depends(get_db)
+):
+    """Admin: List all users - FROM DATABASE (requires admin role)"""
+    farmers = crud.get_farmers(db, skip=skip, limit=limit)
     return {
-        "message": "Admin endpoint",
-        "admin": user.name,
-        "users": []  # Fetch from DB
+        "total": len(farmers),
+        "users": [
+            {
+                "farmer_id": f.farmer_id,
+                "name": f.name,
+                "phone": f.phone,
+                "username": f.username,
+                "state": f.state,
+                "district": f.district,
+                "created_at": f.created_at.isoformat() if f.created_at else None,
+                "lands_count": len(f.lands)
+            }
+            for f in farmers
+        ]
     }
 
 
 # ==================================================
-# HELPER FUNCTION FOR OTHER ENDPOINTS
+# HELPER DEPENDENCY FOR OPTIONAL AUTH
 # ==================================================
 def optional_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))) -> Optional[UserInfo]:
     """Optional authentication - returns None if not authenticated"""

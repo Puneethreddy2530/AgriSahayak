@@ -67,7 +67,21 @@ def predict_crop(nitrogen: float, phosphorus: float, potassium: float,
                  temperature: float, humidity: float, ph: float, 
                  rainfall: float) -> List[Dict]:
     """Predict best crops based on soil and climate parameters."""
-    model = load_crop_model()
+    model_data = load_crop_model()
+    
+    if model_data is None:
+        return _fallback_crop_recommendation(nitrogen, phosphorus, potassium, 
+                                              temperature, humidity, ph, rainfall)
+    
+    # Extract model components from the saved dict
+    if isinstance(model_data, dict):
+        model = model_data.get('model')
+        scaler = model_data.get('scaler')
+        label_encoder = model_data.get('label_encoder')
+    else:
+        model = model_data
+        scaler = None
+        label_encoder = None
     
     if model is None:
         return _fallback_crop_recommendation(nitrogen, phosphorus, potassium, 
@@ -76,20 +90,37 @@ def predict_crop(nitrogen: float, phosphorus: float, potassium: float,
     features = np.array([[nitrogen, phosphorus, potassium, temperature, 
                           humidity, ph, rainfall]])
     
+    # Scale features if scaler exists
+    if scaler is not None:
+        features = scaler.transform(features)
+    
     if hasattr(model, 'predict_proba'):
         probs = model.predict_proba(features)[0]
         classes = model.classes_
         top_indices = np.argsort(probs)[::-1][:3]
         recommendations = []
         for idx in top_indices:
+            crop_name = classes[idx]
+            # Decode label if encoder exists
+            if label_encoder is not None and hasattr(label_encoder, 'inverse_transform'):
+                try:
+                    crop_name = label_encoder.inverse_transform([crop_name])[0]
+                except:
+                    pass
             recommendations.append({
-                'crop_name': classes[idx],
+                'crop_name': str(crop_name),
                 'confidence': float(probs[idx])
             })
         return recommendations
     else:
         pred = model.predict(features)[0]
-        return [{'crop_name': pred, 'confidence': 0.95}]
+        crop_name = pred
+        if label_encoder is not None and hasattr(label_encoder, 'inverse_transform'):
+            try:
+                crop_name = label_encoder.inverse_transform([pred])[0]
+            except:
+                pass
+        return [{'crop_name': str(crop_name), 'confidence': 0.95}]
 
 
 def _fallback_crop_recommendation(n, p, k, temp, humidity, ph, rainfall):

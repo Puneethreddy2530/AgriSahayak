@@ -1,12 +1,15 @@
 """
 AgriSahayak - FastAPI Backend
 AI-Powered Smart Agriculture Platform
-""",
+"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import torch
+import os
 
 from app.api.v1.router import api_router
 from app.core.config import settings
@@ -56,15 +59,31 @@ app.add_middleware(
 # Include API routes
 app.include_router(api_router, prefix="/api/v1")
 
+# Serve frontend static files
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend")
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 @app.get("/")
 async def root():
+    # Serve the frontend
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {
         "message": "🌾 AgriSahayak API - Smart Agriculture Platform",
         "version": "1.0.0",
         "cuda_available": torch.cuda.is_available(),
         "docs": "/docs"
     }
+
+@app.get("/app")
+async def serve_app():
+    """Serve the frontend app"""
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"error": "Frontend not found"}
 
 
 @app.get("/health")

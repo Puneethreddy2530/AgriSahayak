@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriSahayak - Smart Farming Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Mobile Language Switcher (visible only on mobile) -->
+    <div class="mobile-lang-switcher">
+        <select id="mobile-app-language" onchange="changeAppLanguage(this.value)">
+            <option value="en">EN</option>
+            <option value="hi">हिं</option>
+            <option value="te">తె</option>
+            <option value="ta">த</option>
+            <option value="mr">म</option>
+            <option value="kn">ಕ</option>
+            <option value="bn">ব</option>
+            <option value="gu">ગુ</option>
+            <option value="pa">ਪੰ</option>
+        </select>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <!-- Aurora Gradient Mesh -->
+        <div class="aurora-container">
+            <div class="aurora aurora-1"></div>
+            <div class="aurora aurora-2"></div>
+            <div class="aurora aurora-3"></div>
+        </div>
+        
+        <!-- Floating Particles Container -->
+        <div class="particles" id="particles"></div>
+        
+        <!-- Glowing Orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        
+        <!-- Grid Pattern Overlay -->
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i data-lucide="leaf" class="logo-icon-svg"></i>
+            <span class="logo-text gradient-text">AgriSahayak</span>
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <i data-lucide="globe" class="lang-icon"></i>
+            <select id="app-language" onchange="changeAppLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+                <option value="te">తెలుగు</option>
+                <option value="ta">தமிழ்</option>
+                <option value="mr">मराठी</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="bn">বাংলা</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
+            </select>
+        </div>
+        
+        <div class="nav-links">
+            <a href="javascript:void(0)" class="nav-link active" onclick="showPage('profile')">
+                <i data-lucide="user" class="nav-icon-svg"></i>
+                <span data-i18n="profile">Profile</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('crop-advisor')">
+                <i data-lucide="sprout" class="nav-icon-svg"></i>
+                <span data-i18n="cropAdvisor">Crop Advisor</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('crop-cycle')">
+                <i data-lucide="refresh-cw" class="nav-icon-svg"></i>
+                <span data-i18n="cropCycle">Crop Cycle</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('disease')">
+                <i data-lucide="scan-search" class="nav-icon-svg"></i>
+                <span data-i18n="diseaseDetection">Disease Detection</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('fertilizer')">
+                <i data-lucide="flask-conical" class="nav-icon-svg"></i>
+                <span data-i18n="fertilizer">Fertilizer</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('expense')">
+                <i data-lucide="indian-rupee" class="nav-icon-svg"></i>
+                <span data-i18n="expenseTracker">Expense Tracker</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('market')">
+                <i data-lucide="trending-up" class="nav-icon-svg"></i>
+                <span data-i18n="marketPrices">Market Prices</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('weather')">
+                <i data-lucide="cloud-sun" class="nav-icon-svg"></i>
+                <span data-i18n="weather">Weather</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('schemes')">
+                <i data-lucide="file-badge" class="nav-icon-svg"></i>
+                <span data-i18n="govtSchemes">Govt Schemes</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('complaints')" id="nav-complaints" style="display: none;">
+                <i data-lucide="message-circle-warning" class="nav-icon-svg"></i>
+                <span data-i18n="complaints">Complaints</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="javascript:void(0)" class="nav-link admin-link" onclick="showPage('admin')">
+                <i data-lucide="shield" class="nav-icon-svg"></i>
+                <span data-i18n="adminPortal">Admin Portal</span>
+            </a>
+        </div>
+        
+        <button class="sidebar-logout" id="sidebar-logout" onclick="logoutFarmer()" style="display: none;">
+            <i data-lucide="log-out" class="nav-icon-svg"></i>
+            <span data-i18n="logout">Logout</span>
+        </button>
+        
+        <div class="backend-status" id="backend-status">
+            <i data-lucide="loader" class="spin"></i> Checking backend...
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- PROFILE PAGE -->
+        <div id="profile" class="page active">
+            <header class="page-header">
+                <h1 data-i18n="farmerProfile">Farmer Profile</h1>
+                <p data-i18n="profileDesc">Manage your profile and land details for personalized recommendations</p>
+            </header>
+
+            <div id="auth-section">
+                <!-- Welcome Hero for New Users -->
+                <div class="welcome-hero glass-card">
+                    <div class="welcome-content">
+                        <h2 data-i18n="welcomeTitle">🌾 Welcome to AgriSahayak</h2>
+                        <p data-i18n="welcomeDesc">Your AI-powered farming companion. Get crop recommendations, detect plant diseases, track expenses, and access government schemes - all in one place.</p>
+                        <div class="feature-highlights">
+                            <div class="highlight-item">
+                                <i data-lucide="brain" class="highlight-icon"></i>
+                                <span data-i18n="aiCropAdvisor">AI Crop Advisor</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i data-lucide="scan" class="highlight-icon"></i>
+                                <span data-i18n="diseaseScanner">Disease Detection</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i data-lucide="cloud-sun" class="highlight-icon"></i>
+                                <span data-i18n="weatherTitle">Weather Alerts</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i data-lucide="trending-up" class="highlight-icon"></i>
+                                <span data-i18n="marketPrices">Market Prices</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="welcome-image">
+                        <div class="image-placeholder">
+                            <i data-lucide="leaf" style="width: 80px; height: 80px; color: var(--primary);"></i>
+                            <span style="font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-top: 1rem;">Smart Farming</span>
+                            <span style="font-size: 0.9rem; color: var(--text-secondary);">AI-Powered Agriculture</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-toggle glass-card">
+                    <button class="active" onclick="setAuthMode('register')">New Registration</button>
+                    <button onclick="setAuthMode('login')">Already Registered</button>
+                </div>
+
+                <div id="register-form" class="glass-card">
+                    <h3>Register as Farmer</h3>
+                    <p class="form-subtitle">Create your account to unlock all features</p>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Full Name</label>
+                            <input type="text" id="reg-name" placeholder="Enter your name" class="input">
+                        </div>
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="reg-username" placeholder="Choose a username" class="input" autocomplete="username">
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="reg-password" placeholder="Create password (min 6 chars)" class="input" autocomplete="new-password">
+                        </div>
+                        <div class="input-group">
+                            <label>Confirm Password</label>
+                            <input type="password" id="reg-confirm-password" placeholder="Confirm password" class="input" autocomplete="new-password">
+                        </div>
+                        <div class="input-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="reg-phone" placeholder="10-digit mobile" class="input" maxlength="10">
+                        </div>
+                        <div class="input-group">
+                            <label>State</label>
+                            <select id="reg-state" class="input">
+                                <option value="">Select State</option>
+                                <option>Maharashtra</option><option>Punjab</option><option>Uttar Pradesh</option>
+                                <option>Madhya Pradesh</option><option>Gujarat</option><option>Rajasthan</option>
+                                <option>Karnataka</option><option>Tamil Nadu</option><option>Andhra Pradesh</option>
+                                <option>Telangana</option><option>West Bengal</option><option>Bihar</option><option>Haryana</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>District</label>
+                            <input type="text" id="reg-district" placeholder="Your district" class="input">
+                        </div>
+                        <div class="input-group">
+                            <label>Preferred Language</label>
+                            <select id="reg-language" class="input">
+                                <option value="hi">हिंदी</option><option value="en">English</option>
+                                <option value="mr">मराठी</option><option value="ta">தமிழ்</option>
+                                <option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="registerFarmer()">Complete Registration</button>
+                </div>
+
+                <div id="login-form" class="glass-card" style="display: none;">
+                    <h3>Login to Your Account</h3>
+                    <div class="input-group">
+                        <label>Username or Phone</label>
+                        <input type="text" id="login-username" placeholder="Enter username or phone" class="input" autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" class="input" autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)">
+                            <i data-lucide="eye" class="eye-icon"></i>
+                        </button>
+                    </div>
+                    <div class="login-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember-me"> Remember me
+                        </label>
+                        <a href="javascript:void(0)" class="forgot-password" onclick="showForgotPassword()">Forgot Password?</a>
+                    </div>
+                    <button class="btn-primary" onclick="loginFarmer()">Login</button>
+                    <p id="login-error" class="error-msg"></p>
+                    <div class="security-badge">
+                        <i data-lucide="shield-check"></i>
+                        <span>Your data is encrypted and secure</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-dashboard" style="display: none;">
+                <div class="profile-card glass-card">
+                    <div class="profile-header">
+                        <div class="avatar-container">
+                            <div class="avatar" id="farmer-avatar">J</div>
+                            <img id="farmer-avatar-img" class="avatar-img" style="display: none;" alt="Profile">
+                            <label class="avatar-upload-btn" for="avatar-upload" title="Change Photo">
+                                <i data-lucide="camera" style="width:14px;height:14px;"></i>
+                            </label>
+                            <input type="file" id="avatar-upload" accept="image/*" onchange="uploadProfilePicture(event)" style="display: none;">
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="farmer-name">John Doe</h2>
+                            <p class="text-muted"><i data-lucide="at-sign" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-username">username</span></p>
+                            <p class="text-muted"><i data-lucide="phone" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-phone">9876543210</span></p>
+                            <p class="text-muted"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-location">District, State</span></p>
+                            <p class="text-muted"><i data-lucide="languages" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-language">हिंदी</span></p>
+                        </div>
+                        <span class="badge" id="farmer-id">ID: ABC123</span>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat"><span class="stat-value" id="stat-lands">0</span><span class="stat-label">Lands</span></div>
+                        <div class="stat"><span class="stat-value" id="stat-area">0</span><span class="stat-label">Acres</span></div>
+                        <div class="stat"><span class="stat-value" id="stat-crops">0</span><span class="stat-label">Crops Grown</span></div>
+                    </div>
+                    <button class="btn-logout" onclick="logoutFarmer()">
+                        <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+                        Logout
+                    </button>
+                </div>
+
+                <div class="section-header">
+                    <h3>Your Lands</h3>
+                    <button class="btn-secondary" onclick="toggleAddLand()">+ Add Land</button>
+                </div>
+
+                <div id="add-land-form" class="glass-card" style="display: none;">
+                    <div class="form-grid">
+                        <div class="input-group full-width">
+                            <label>Land Name</label>
+                            <input type="text" id="land-name" placeholder="e.g., North Field, Village Plot" class="input">
+                        </div>
+                        <div class="input-group">
+                            <label>Area (Acres)</label>
+                            <input type="number" id="land-area" placeholder="e.g., 2.5" class="input" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Soil Type</label>
+                            <select id="land-soil" class="input">
+                                <option value="">Select</option>
+                                <option value="black">Black (Regur)</option><option value="red">Red Soil</option>
+                                <option value="alluvial">Alluvial</option><option value="sandy">Sandy</option><option value="loamy">Loamy</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Irrigation Type</label>
+                            <select id="land-irrigation" class="input">
+                                <option value="">Select</option>
+                                <option value="rainfed">Rainfed</option><option value="canal">Canal</option>
+                                <option value="borewell">Borewell</option><option value="drip">Drip Irrigation</option><option value="sprinkler">Sprinkler</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Location (Optional)</label>
+                            <input type="text" id="land-location" placeholder="e.g., Near river" class="input">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="addLand()">Add Land</button>
+                </div>
+
+                <div id="lands-container" class="land-cards"></div>
+            </div>
+        </div>
+
+        <!-- CROP ADVISOR PAGE -->
+        <div id="crop-advisor" class="page">
+            <header class="page-header">
+                <h1 data-i18n="cropAdvisorTitle">AI Crop Advisor</h1>
+                <p data-i18n="cropAdvisorDesc">Get AI-powered crop recommendations based on your soil and climate</p>
+            </header>
+
+            <!-- Hero Banner -->
+            <div class="hero-banner crop-advisor-banner">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h2 data-i18n="smartFarmingTitle">🌱 Smart Farming Starts Here</h2>
+                        <p data-i18n="smartFarmingDesc">Our AI analyzes your soil nutrients, climate data, and regional patterns to recommend the perfect crops for maximum yield.</p>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat"><span class="stat-num">98%</span><span data-i18n="accuracy">Accuracy</span></div>
+                        <div class="hero-stat"><span class="stat-num">22+</span><span data-i18n="crops">Crops</span></div>
+                        <div class="hero-stat"><span class="stat-num">50K+</span><span data-i18n="farmers">Farmers</span></div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop" alt="Smart Farming" class="hero-img">
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 data-i18n="enterFieldData">Enter Your Field Data</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label data-i18n="nitrogen">Nitrogen (N) kg/ha</label><input type="number" id="nitrogen" value="50" class="input"></div>
+                    <div class="input-group"><label data-i18n="phosphorus">Phosphorus (P) kg/ha</label><input type="number" id="phosphorus" value="40" class="input"></div>
+                    <div class="input-group"><label data-i18n="potassium">Potassium (K) kg/ha</label><input type="number" id="potassium" value="30" class="input"></div>
+                    <div class="input-group"><label data-i18n="temperatureLabel">Temperature (°C)</label><input type="number" id="temperature" value="28" class="input"></div>
+                    <div class="input-group"><label data-i18n="humidityLabel">Humidity (%)</label><input type="number" id="humidity" value="70" class="input"></div>
+                    <div class="input-group"><label data-i18n="soilPH">Soil pH</label><input type="number" id="ph" value="6.5" step="0.1" class="input"></div>
+                    <div class="input-group full-width"><label data-i18n="annualRainfall">Annual Rainfall (mm)</label><input type="number" id="rainfall" value="150" class="input"></div>
+                </div>
+                <button class="btn-primary" id="crop-btn" onclick="getCropRecommendations()" data-i18n="getRecommendations">Get Recommendations</button>
+            </div>
+
+            <div id="crop-results" style="display: none;">
+                <h3 style="text-align: center; margin: 2rem 0;" data-i18n="recommendedCrops">Recommended Crops</h3>
+                <div id="crop-cards" class="recommendations-grid"></div>
+                <div id="soil-health" class="glass-card"></div>
+            </div>
+        </div>
+
+        <!-- CROP CYCLE PAGE -->
+        <div id="crop-cycle" class="page">
+            <header class="page-header">
+                <h1 data-i18n="cropCycleTitle">Crop Lifecycle Tracker</h1>
+                <p data-i18n="cropCycleDesc">Track your crops from sowing to harvest with AI-powered insights</p>
+            </header>
+
+            <!-- Crop Cycle Stats Banner -->
+            <div class="cycle-stats-banner glass-card">
+                <div class="cycle-stat-item">
+                    <div class="stat-icon-circle"><i data-lucide="calendar" class="stat-icon-sm"></i></div>
+                    <div>
+                        <span class="stat-title" data-i18n="currentSeason">Current Season</span>
+                        <span class="stat-val" id="current-season-display">Rabi</span>
+                    </div>
+                </div>
+                <div class="cycle-stat-item">
+                    <div class="stat-icon-circle warning"><i data-lucide="sun" class="stat-icon-sm"></i></div>
+                    <div>
+                        <span class="stat-title" data-i18n="bestTimeToSow">Best Time to Sow</span>
+                        <span class="stat-val">Oct - Nov</span>
+                    </div>
+                </div>
+                <div class="cycle-stat-item">
+                    <div class="stat-icon-circle success"><i data-lucide="droplets" class="stat-icon-sm"></i></div>
+                    <div>
+                        <span class="stat-title" data-i18n="irrigationNeeded">Irrigation Needed</span>
+                        <span class="stat-val">4-6 times</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 data-i18n="startNewCropCycle">Start New Crop Cycle</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label data-i18n="landId">Land ID</label><input type="text" id="cycle-land-id" placeholder="e.g., L123ABC" class="input"></div>
+                    <div class="input-group">
+                        <label data-i18n="crop">Crop</label>
+                        <select id="cycle-crop" class="input">
+                            <option value="" data-i18n="selectCrop">Select Crop</option>
+                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
+                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Season</label>
+                        <select id="cycle-season" class="input">
+                            <option value="kharif">Kharif (Monsoon)</option><option value="rabi">Rabi (Winter)</option><option value="zaid">Zaid (Summer)</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>Sowing Date</label><input type="date" id="cycle-sowing-date" class="input"></div>
+                </div>
+                <button class="btn-primary" onclick="startCropCycle()">Start Tracking</button>
+            </div>
+
+            <div id="active-cycles"><h3>Active Crop Cycles</h3><div id="cycles-container" class="cycle-cards"></div></div>
+            <div id="empty-cycles" class="glass-card empty-state">
+                <i data-lucide="sprout" class="empty-icon-svg"></i><h3>No Active Crops</h3>
+                <p>Start tracking your first crop cycle to get AI-powered insights!</p>
+            </div>
+        </div>
+
+        <!-- DISEASE DETECTION PAGE -->
+        <div id="disease" class="page">
+            <header class="page-header">
+                <h1 data-i18n="diseaseTitle">Disease Detection</h1>
+                <p data-i18n="diseaseDesc">Upload a photo of your plant leaf to detect diseases instantly using AI</p>
+            </header>
+
+            <!-- How it works section -->
+            <div class="how-it-works glass-card">
+                <h3 data-i18n="howItWorks">🔬 How It Works</h3>
+                <div class="steps-row">
+                    <div class="step-item">
+                        <div class="step-icon">📸</div>
+                        <h4 data-i18n="capture">1. Capture</h4>
+                        <p data-i18n="captureDesc">Take a clear photo of the affected leaf</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-item">
+                        <div class="step-icon">🤖</div>
+                        <h4 data-i18n="analyze">2. Analyze</h4>
+                        <p data-i18n="analyzeDesc">AI scans for 38+ plant diseases</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-item">
+                        <div class="step-icon">💊</div>
+                        <h4 data-i18n="treat">3. Treat</h4>
+                        <p data-i18n="treatDesc">Get treatment recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supported crops showcase -->
+            <div class="supported-crops glass-card">
+                <h4 data-i18n="supportedCrops">Supported Crops</h4>
+                <div class="crop-icons">
+                    <div class="crop-icon-item"><span>🍅</span><small>Tomato</small></div>
+                    <div class="crop-icon-item"><span>🥔</span><small>Potato</small></div>
+                    <div class="crop-icon-item"><span>🫑</span><small>Pepper</small></div>
+                    <div class="crop-icon-item"><span>🌽</span><small>Corn</small></div>
+                    <div class="crop-icon-item"><span>🍇</span><small>Grape</small></div>
+                    <div class="crop-icon-item"><span>🍎</span><small>Apple</small></div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)" hidden>
+                    <div id="upload-placeholder" class="upload-placeholder">
+                        <i data-lucide="camera" class="upload-icon-svg"></i><h3>Drop your image here</h3>
+                        <p>or click to browse</p><span class="upload-hint">Supports JPG, PNG up to 10MB</span>
+                    </div>
+                    <img id="preview-image" class="preview-image" style="display: none;" alt="Preview">
+                </div>
+                <div class="upload-actions">
+                    <button class="btn-primary" id="analyze-btn" onclick="analyzeDisease()" disabled>Analyze</button>
+                    <button class="btn-secondary" onclick="clearImage()">Clear</button>
+                </div>
+            </div>
+            <div id="disease-results" style="display: none;"></div>
+        </div>
+
+        <!-- FERTILIZER PAGE -->
+        <div id="fertilizer" class="page">
+            <header class="page-header">
+                <h1 data-i18n="fertilizerTitle">Fertilizer & Pesticide Advisory</h1>
+                <p data-i18n="fertilizerDesc">Smart recommendations based on your soil NPK levels</p>
+            </header>
+
+            <!-- Info Cards Row -->
+            <div class="info-cards-row">
+                <div class="info-mini-card glass-card">
+                    <div class="info-icon">🧪</div>
+                    <div class="info-content">
+                        <h4>NPK Analysis</h4>
+                        <p>Nitrogen, Phosphorus & Potassium balance check</p>
+                    </div>
+                </div>
+                <div class="info-mini-card glass-card">
+                    <div class="info-icon">🌱</div>
+                    <div class="info-content">
+                        <h4>Crop-Specific</h4>
+                        <p>Tailored recommendations per crop type</p>
+                    </div>
+                </div>
+                <div class="info-mini-card glass-card">
+                    <div class="info-icon">💰</div>
+                    <div class="info-content">
+                        <h4>Cost Effective</h4>
+                        <p>Optimize fertilizer usage, save money</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Enter Soil Test Results</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Crop</label>
+                        <select id="fert-crop" class="input">
+                            <option value="">Select Crop</option>
+                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
+                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>Nitrogen (N) kg/ha</label><input type="number" id="fert-nitrogen" class="input" value="120"></div>
+                    <div class="input-group"><label>Phosphorus (P) kg/ha</label><input type="number" id="fert-phosphorus" class="input" value="35"></div>
+                    <div class="input-group"><label>Potassium (K) kg/ha</label><input type="number" id="fert-potassium" class="input" value="80"></div>
+                    <div class="input-group"><label>Soil pH</label><input type="number" id="fert-ph" class="input" step="0.1" value="6.8"></div>
+                    <div class="input-group"><label>Organic Carbon (%)</label><input type="number" id="fert-oc" class="input" step="0.1" value="0.4"></div>
+                </div>
+                <button class="btn-primary" onclick="getFertilizerRecommendations()">Get Smart Recommendations</button>
+            </div>
+            <div id="fertilizer-results" style="display: none;"></div>
+        </div>
+
+        <!-- EXPENSE PAGE -->
+        <div id="expense" class="page">
+            <header class="page-header">
+                <h1 data-i18n="expenseTitle">Expense & Profit Estimator</h1>
+                <p data-i18n="expenseDesc">Track your farming costs and predict profits with AI</p>
+            </header>
+
+            <div class="glass-card">
+                <h3>Enter Farming Expenses</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Crop</label>
+                        <select id="exp-crop" class="input">
+                            <option value="">Select Crop</option>
+                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
+                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>Area (Acres)</label><input type="number" id="exp-area" class="input" step="0.5" value="2"></div>
+                    <div class="input-group">
+                        <label>Season</label>
+                        <select id="exp-season" class="input">
+                            <option value="kharif">Kharif (Monsoon)</option><option value="rabi">Rabi (Winter)</option><option value="zaid">Zaid (Summer)</option>
+                        </select>
+                    </div>
+                </div>
+                <h4 style="margin-top: 1.5rem;">Cost Breakdown (₹)</h4>
+                <div class="form-grid">
+                    <div class="input-group"><label>Seed Cost</label><input type="number" id="exp-seed" class="input" value="2000"></div>
+                    <div class="input-group"><label>Fertilizer Cost</label><input type="number" id="exp-fertilizer" class="input" value="3000"></div>
+                    <div class="input-group"><label>Pesticide Cost</label><input type="number" id="exp-pesticide" class="input" value="1500"></div>
+                    <div class="input-group"><label>Labor Cost</label><input type="number" id="exp-labor" class="input" value="5000"></div>
+                    <div class="input-group"><label>Irrigation Cost</label><input type="number" id="exp-irrigation" class="input" value="2000"></div>
+                    <div class="input-group"><label>Machinery Cost</label><input type="number" id="exp-machinery" class="input" value="3000"></div>
+                </div>
+                <button class="btn-primary" onclick="estimateProfit()">Calculate Profit</button>
+            </div>
+            <div id="expense-results" style="display: none;"></div>
+        </div>
+
+        <!-- MARKET PRICES PAGE -->
+        <div id="market" class="page">
+            <header class="page-header">
+                <h1 data-i18n="marketTitle">Market Prices</h1>
+                <p data-i18n="marketDesc">Real-time mandi prices and market intelligence for your produce</p>
+            </header>
+
+            <!-- Market Insights Banner -->
+            <div class="market-insights-banner glass-card">
+                <div class="insight-item trending-up">
+                    <i data-lucide="trending-up"></i>
+                    <div>
+                        <span class="insight-label">Today's Top Gainer</span>
+                        <span class="insight-value">Tomato +12%</span>
+                    </div>
+                </div>
+                <div class="insight-item trending-down">
+                    <i data-lucide="trending-down"></i>
+                    <div>
+                        <span class="insight-label">Biggest Drop</span>
+                        <span class="insight-value">Onion -8%</span>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <i data-lucide="map-pin"></i>
+                    <div>
+                        <span class="insight-label">Top Market</span>
+                        <span class="insight-value">Azadpur Mandi</span>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <i data-lucide="clock"></i>
+                    <div>
+                        <span class="insight-label">Last Updated</span>
+                        <span class="insight-value">2 mins ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="search-bar">
+                    <i data-lucide="search" class="search-icon-svg"></i>
+                    <input type="text" id="market-search" placeholder="Search commodity..." class="search-input" onkeyup="filterMarket(event)">
+                </div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Cereals:</strong></div>
+                <div class="quick-filters" id="commodity-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
+                    <button class="filter-btn active" onclick="selectCommodity('rice')">🌾 Rice</button>
+                    <button class="filter-btn" onclick="selectCommodity('wheat')">🌾 Wheat</button>
+                    <button class="filter-btn" onclick="selectCommodity('maize')">🌽 Maize</button>
+                    <button class="filter-btn" onclick="selectCommodity('bajra')">🌾 Bajra</button>
+                    <button class="filter-btn" onclick="selectCommodity('jowar')">🌾 Jowar</button>
+                </div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Cash Crops:</strong></div>
+                <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
+                    <button class="filter-btn" onclick="selectCommodity('cotton')">🧶 Cotton</button>
+                    <button class="filter-btn" onclick="selectCommodity('sugarcane')">🎋 Sugarcane</button>
+                    <button class="filter-btn" onclick="selectCommodity('soybean')">🫘 Soybean</button>
+                    <button class="filter-btn" onclick="selectCommodity('groundnut')">🥜 Groundnut</button>
+                    <button class="filter-btn" onclick="selectCommodity('mustard')">🌻 Mustard</button>
+                </div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Pulses:</strong></div>
+                <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
+                    <button class="filter-btn" onclick="selectCommodity('chana')">🫘 Chana</button>
+                    <button class="filter-btn" onclick="selectCommodity('moong')">🫛 Moong</button>
+                    <button class="filter-btn" onclick="selectCommodity('urad')">🫘 Urad</button>
+                    <button class="filter-btn" onclick="selectCommodity('tur')">🫘 Tur/Arhar</button>
+                </div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Vegetables & Fruits:</strong></div>
+                <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
+                    <button class="filter-btn" onclick="selectCommodity('tomato')">🍅 Tomato</button>
+                    <button class="filter-btn" onclick="selectCommodity('potato')">🥔 Potato</button>
+                    <button class="filter-btn" onclick="selectCommodity('onion')">🧅 Onion</button>
+                    <button class="filter-btn" onclick="selectCommodity('cauliflower')">🥦 Cauliflower</button>
+                    <button class="filter-btn" onclick="selectCommodity('banana')">🍌 Banana</button>
+                    <button class="filter-btn" onclick="selectCommodity('mango')">🥭 Mango</button>
+                </div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Spices:</strong></div>
+                <div class="quick-filters" style="flex-wrap: wrap;">
+                    <button class="filter-btn" onclick="selectCommodity('turmeric')">🟡 Turmeric</button>
+                    <button class="filter-btn" onclick="selectCommodity('chilli')">🌶️ Chilli</button>
+                </div>
+            </div>
+            <div id="market-results"></div>
+        </div>
+
+        <!-- SCHEMES PAGE -->
+        <div id="schemes" class="page">
+            <header class="page-header">
+                <h1 data-i18n="schemesTitle">Government Schemes</h1>
+                <p data-i18n="schemesDesc">Discover subsidies and welfare schemes you're eligible for</p>
+            </header>
+
+            <div class="glass-card">
+                <div class="search-bar">
+                    <i data-lucide="search" class="search-icon-svg"></i>
+                    <input type="text" id="scheme-search" placeholder="Search schemes by name, ministry or benefit..." class="search-input" onkeyup="filterSchemes()">
+                </div>
+                <div class="quick-filters" style="flex-wrap: wrap;">
+                    <button class="filter-btn active" onclick="filterSchemeCategory('All')">All</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Insurance')">Insurance</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Subsidy')">Subsidy</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Credit')">Credit</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Irrigation')">Irrigation</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Market')">Market</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Organic')">Organic</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Pension')">Pension</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Horticulture')">Horticulture</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Dairy')">Dairy</button>
+                    <button class="filter-btn" onclick="filterSchemeCategory('Climate')">Climate</button>
+                </div>
+            </div>
+
+            <div class="eligibility-cta glass-card">
+                <div class="cta-content">
+                    <i data-lucide="badge-check" class="cta-icon-svg"></i>
+                    <div><h3>Check Your Eligibility</h3><p>Answer a few questions to find schemes you qualify for</p></div>
+                </div>
+                <button class="btn-primary" onclick="startEligibilityCheck()">Start Check</button>
+            </div>
+            
+            <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <strong id="scheme-count">18</strong> Government Schemes Available
+                <span style="color: var(--text-muted); margin-left: 1rem;">• Updated: Jan 2025</span>
+            </div>
+            
+            <div id="schemes-grid" class="schemes-grid"></div>
+        </div>
+
+        <!-- WEATHER PAGE -->
+        <div id="weather" class="page">
+            <header class="page-header">
+                <h1 data-i18n="weatherTitle">Weather Intelligence</h1>
+                <p data-i18n="weatherDesc">Real-time weather data with farming risk analysis</p>
+            </header>
+
+            <!-- Weather Features Banner -->
+            <div class="feature-cards-row">
+                <div class="feature-mini-card glass-card">
+                    <i data-lucide="thermometer" class="feature-icon"></i>
+                    <h4>Temperature</h4>
+                    <p>Real-time monitoring</p>
+                </div>
+                <div class="feature-mini-card glass-card">
+                    <i data-lucide="cloud-rain" class="feature-icon"></i>
+                    <h4>Rainfall</h4>
+                    <p>7-day forecast</p>
+                </div>
+                <div class="feature-mini-card glass-card">
+                    <i data-lucide="wind" class="feature-icon"></i>
+                    <h4>Wind Alerts</h4>
+                    <p>Storm warnings</p>
+                </div>
+                <div class="feature-mini-card glass-card">
+                    <i data-lucide="sun" class="feature-icon"></i>
+                    <h4>UV Index</h4>
+                    <p>Crop protection</p>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Select Location</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>City/District</label>
+                        <input type="text" id="weather-city" class="input" placeholder="e.g., Pune" value="Pune">
+                    </div>
+                    <div class="input-group">
+                        <label>State</label>
+                        <select id="weather-state" class="input">
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Haryana">Haryana</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="getWeather()">Get Weather & Farming Advice</button>
+            </div>
+
+            <!-- Current Weather -->
+            <div id="current-weather" class="glass-card" style="display: none;">
+                <div class="weather-current">
+                    <div class="weather-main">
+                        <span class="weather-icon" id="weather-icon">☀️</span>
+                        <div class="weather-temp">
+                            <span class="temp-value" id="temp-value">--</span>
+                            <span class="temp-unit">°C</span>
+                        </div>
+                        <div class="weather-desc" id="weather-desc">Loading...</div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail"><span>Humidity</span><span id="weather-humidity">--%</span></div>
+                        <div class="weather-detail"><span>Wind</span><span id="wind-speed">-- km/h</span></div>
+                        <div class="weather-detail"><span>Rain (24h)</span><span id="rainfall">-- mm</span></div>
+                        <div class="weather-detail"><span>UV Index</span><span id="uv-index">--</span></div>
+                        <div class="weather-detail"><span>Pressure</span><span id="pressure">-- hPa</span></div>
+                        <div class="weather-detail"><span>Feels Like</span><span id="feels-like">--°C</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farming Risk Alerts -->
+            <div id="risk-alerts" class="glass-card" style="display: none;">
+                <h3>Farming Risk Alerts</h3>
+                <div id="alerts-container"></div>
+            </div>
+
+            <!-- 7-Day Forecast -->
+            <div id="forecast-section" class="glass-card" style="display: none;">
+                <h3>7-Day Forecast</h3>
+                <div id="forecast-grid" class="forecast-grid"></div>
+            </div>
+
+            <!-- Farming Recommendations -->
+            <div id="farming-advice" class="glass-card" style="display: none;">
+                <h3>Smart Farming Recommendations</h3>
+                <div id="advice-container"></div>
+            </div>
+        </div>
+
+        <!-- COMPLAINTS PAGE (Farmer) -->
+        <div id="complaints" class="page">
+            <header class="page-header">
+                <h1 data-i18n="complaintsTitle">Raise a Complaint</h1>
+                <p data-i18n="complaintsDesc">Report issues to your district agricultural officer</p>
+            </header>
+
+            <div class="glass-card">
+                <h3 data-i18n="submitNewComplaint">New Complaint</h3>
+                <div class="form-grid">
+                    <div class="input-group full-width">
+                        <label>Complaint Category</label>
+                        <select id="complaint-category" class="input">
+                            <option value="">Select Category</option>
+                            <option value="water">Water/Irrigation Issues</option>
+                            <option value="seeds">Seed Quality</option>
+                            <option value="fertilizer">Fertilizer Availability</option>
+                            <option value="pests">Pest/Disease Outbreak</option>
+                            <option value="market">Market Price Issues</option>
+                            <option value="subsidy">Subsidy/Scheme Issues</option>
+                            <option value="land">Land Dispute</option>
+                            <option value="equipment">Equipment/Machinery</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group full-width">
+                        <label>Subject</label>
+                        <input type="text" id="complaint-subject" placeholder="Brief description of issue" class="input">
+                    </div>
+                    <div class="input-group full-width">
+                        <label>Detailed Description</label>
+                        <textarea id="complaint-description" class="input" rows="4" placeholder="Describe your issue in detail..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Urgency Level</label>
+                        <select id="complaint-urgency" class="input">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Attach Photo (Optional)</label>
+                        <input type="file" id="complaint-photo" accept="image/*" class="input">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="submitComplaint()">
+                    <i data-lucide="send" style="width:16px;height:16px;"></i>
+                    Submit Complaint
+                </button>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h3>Your Complaints</h3>
+            </div>
+            <div id="my-complaints-container"></div>
+        </div>
+
+        <!-- ADMIN PAGE -->
+        <div id="admin" class="page">
+            <header class="page-header">
+                <h1 data-i18n="adminTitle">District Admin Portal</h1>
+                <p data-i18n="adminDesc">Manage farmers and resolve complaints in your district</p>
+            </header>
+
+            <!-- Admin Login Section -->
+            <div id="admin-auth-section">
+                <div class="glass-card" style="max-width: 450px; margin: 0 auto;">
+                    <h3 style="text-align: center; margin-bottom: 1.5rem;">
+                        <i data-lucide="shield" style="width:24px;height:24px;display:inline;color:var(--primary);"></i>
+                        <span data-i18n="adminLogin">Admin Login</span>
+                    </h3>
+                    <div class="input-group">
+                        <label>District</label>
+                        <select id="admin-district" class="input">
+                            <option value="">Select District</option>
+                            <option>Pune</option><option>Mumbai</option><option>Nagpur</option>
+                            <option>Nashik</option><option>Aurangabad</option><option>Solapur</option>
+                            <option>Ludhiana</option><option>Amritsar</option><option>Jalandhar</option>
+                            <option>Lucknow</option><option>Kanpur</option><option>Varanasi</option>
+                            <option>Indore</option><option>Bhopal</option><option>Gwalior</option>
+                            <option>Ahmedabad</option><option>Surat</option><option>Vadodara</option>
+                            <option>Jaipur</option><option>Jodhpur</option><option>Udaipur</option>
+                            <option>Bengaluru</option><option>Mysuru</option><option>Hubli</option>
+                            <option>Chennai</option><option>Coimbatore</option><option>Madurai</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Admin ID</label>
+                        <input type="text" id="admin-id" placeholder="Enter Admin ID" class="input">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="admin-password" placeholder="Enter Password" class="input">
+                    </div>
+                    <button class="btn-primary" onclick="adminLogin()" style="width: 100%;">
+                        <i data-lucide="log-in" style="width:16px;height:16px;"></i>
+                        Login as Admin
+                    </button>
+                    <p class="text-muted" style="text-align:center;margin-top:1rem;font-size:0.8rem;">
+                        Demo: Any district + ID: admin + Password: admin123
+                    </p>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard (Hidden until login) -->
+            <div id="admin-dashboard" style="display: none;">
+                <div class="admin-header glass-card">
+                    <div class="admin-info">
+                        <h3><i data-lucide="shield-check" style="width:20px;height:20px;color:var(--primary);"></i> <span id="admin-district-name">District</span> Agriculture Officer</h3>
+                        <p class="text-muted" id="admin-officer-id">ID: ADMIN001</p>
+                    </div>
+                    <button class="btn-logout" onclick="adminLogout()">
+                        <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+                        Logout
+                    </button>
+                </div>
+
+                <!-- Admin Stats -->
+                <div class="admin-stats">
+                    <div class="admin-stat-card glass-card">
+                        <i data-lucide="users" class="stat-icon"></i>
+                        <div><span class="stat-value" id="admin-total-farmers">0</span><span class="stat-label">Registered Farmers</span></div>
+                    </div>
+                    <div class="admin-stat-card glass-card">
+                        <i data-lucide="alert-circle" class="stat-icon pending"></i>
+                        <div><span class="stat-value" id="admin-pending-complaints">0</span><span class="stat-label">Pending Complaints</span></div>
+                    </div>
+                    <div class="admin-stat-card glass-card">
+                        <i data-lucide="check-circle" class="stat-icon resolved"></i>
+                        <div><span class="stat-value" id="admin-resolved-complaints">0</span><span class="stat-label">Resolved This Month</span></div>
+                    </div>
+                    <div class="admin-stat-card glass-card">
+                        <i data-lucide="map-pin" class="stat-icon"></i>
+                        <div><span class="stat-value" id="admin-total-area">0</span><span class="stat-label">Total Acres</span></div>
+                    </div>
+                </div>
+
+                <!-- Complaints Section -->
+                <div class="section-header">
+                    <h3>Complaints</h3>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterComplaints('all')">All</button>
+                        <button class="filter-tab" onclick="filterComplaints('pending')">Pending</button>
+                        <button class="filter-tab" onclick="filterComplaints('in-progress')">In Progress</button>
+                        <button class="filter-tab" onclick="filterComplaints('resolved')">Resolved</button>
+                    </div>
+                </div>
+                <div id="admin-complaints-container"></div>
+
+                <!-- Farmers List -->
+                <div class="section-header" style="margin-top: 2rem;">
+                    <h3>Registered Farmers</h3>
+                </div>
+                <div id="admin-farmers-container"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div><p>Processing...</p>
+    </div>
+
+    <!-- Eligibility Check Modal -->
+    <div id="eligibility-modal" class="eligibility-modal">
+        <div class="eligibility-content glass-card">
+            <div class="eligibility-header">
+                <h2><i data-lucide="badge-check" style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i> Eligibility Check</h2>
+                <button class="close-modal" onclick="closeEligibilityModal()">
+                    <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+                </button>
+            </div>
+            <div class="eligibility-body">
+                <div class="eligibility-progress" id="eligibility-progress"></div>
+                <div id="eligibility-questions"></div>
+            </div>
+            <div class="eligibility-footer">
+                <button class="btn-secondary" onclick="prevEligibilityStep()" id="eligibility-prev" style="display: none;">← Previous</button>
+                <button class="btn-primary" onclick="nextEligibilityStep()" id="eligibility-next">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Modal -->
+    <div id="activity-modal" class="modal-overlay" style="display: none;" onclick="closeActivityModal()">
+        <div class="modal glass-card" onclick="event.stopPropagation()">
+            <h3>Log Farming Activity</h3>
+            <div class="input-group">
+                <label>Activity Type</label>
+                <select id="activity-type" class="input">
+                    <option value="irrigation">Irrigation</option><option value="fertilizer">Fertilizer</option>
+                    <option value="pesticide">Pesticide</option><option value="weeding">Weeding</option><option value="other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Description</label>
+                <textarea id="activity-description" class="input" rows="3" placeholder="Describe the activity..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="submitActivity()">Log Activity</button>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -12,6 +12,9 @@ psycopg2-binary==2.9.9
 redis==5.0.1
 
 # ML & AI
+# PyTorch CUDA wheels are hosted on the PyTorch index (not PyPI).
+--index-url https://download.pytorch.org/whl/cu118
+--extra-index-url https://pypi.org/simple
 torch==2.1.2+cu118
 torchvision==0.16.2+cu118
 numpy==1.26.3
@@ -20,12 +23,16 @@ scikit-learn==1.4.0
 Pillow==10.2.0
 opencv-python==4.9.0.80
 
+# Hugging Face (disease detection)
+transformers==4.36.0
+
 # Twilio IVR
 twilio==8.11.1
 
 # Auth & Security
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 
 # External APIs
 httpx==0.26.0
