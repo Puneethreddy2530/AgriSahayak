@@ -143,22 +143,25 @@ def load_disease_model():
     """Load pre-trained disease detection model from Hugging Face"""
     global _disease_model, _disease_processor
     
-    if _disease_model is None and HF_AVAILABLE:
-        try:
-            model_name = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-            logger.info(f"📥 Loading pre-trained model: {model_name}")
-            
-            _disease_processor = AutoImageProcessor.from_pretrained(model_name)
-            _disease_model = AutoModelForImageClassification.from_pretrained(model_name)
-            _disease_model.to(get_device())
-            _disease_model.eval()
-            
-            logger.info(f"✅ Loaded HuggingFace plant disease model (95%+ accuracy)")
-            logger.info(f"   Classes: {len(_disease_model.config.id2label)}")
-        except Exception as e:
-            logger.warning(f"⚠️ Failed to load HuggingFace model: {e}")
-            _disease_model = None
-            _disease_processor = None
+    if _disease_model is None:
+        if HF_AVAILABLE:
+            try:
+                model_name = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+                logger.info(f"📥 Loading pre-trained model: {model_name}")
+                
+                _disease_processor = AutoImageProcessor.from_pretrained(model_name)
+                _disease_model = AutoModelForImageClassification.from_pretrained(model_name)
+                _disease_model.to(get_device())
+                _disease_model.eval()
+                
+                logger.info(f"✅ Loaded HuggingFace plant disease model (95%+ accuracy)")
+                logger.info(f"   Classes: {len(_disease_model.config.id2label)}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to load HuggingFace model: {e}")
+                _disease_model = None
+                _disease_processor = None
+        else:
+            logger.warning("⚠️ Transformers not available, using fallback")
     
     return _disease_model, _disease_processor
 

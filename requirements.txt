@@ -1,5 +1,5 @@
-# AgriSahayak Backend Requirements
-# For deployment (CPU-optimized)
+# AgriSahayak - Hugging Face Spaces Deployment
+# FastAPI + ML Models
 
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
@@ -11,9 +11,10 @@ pydantic-settings==2.1.0
 sqlalchemy==2.0.25
 aiosqlite==0.19.0
 
-# ML & AI (CPU versions for deployment)
+# ML & AI
 torch==2.1.2
 torchvision==0.16.2
+transformers==4.36.2
 numpy==1.26.3
 pandas==2.1.4
 scikit-learn==1.8.0

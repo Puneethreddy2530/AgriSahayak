@@ -1,3 +1,13 @@
+---
+title: AgriSahayak
+emoji: 🌾
+colorFrom: green
+colorTo: yellow
+sdk: docker
+pinned: false
+license: mit
+---
+
 # 🌾 AgriSahayak - AI-Powered Smart Agriculture Platform
 
 <div align="center">
@@ -11,7 +21,7 @@
 
 **Empowering Indian Farmers with AI-Driven Agricultural Intelligence**
 
-[Live Demo](https://agrisahayak.onrender.com) • [API Docs](https://agrisahayak.onrender.com/docs) • [Report Bug](../../issues)
+[Live Demo](https://huggingface.co/spaces/YOUR_USERNAME/AgriSahayak) • [API Docs](/docs) • [Report Bug](../../issues)
 
 </div>
 
