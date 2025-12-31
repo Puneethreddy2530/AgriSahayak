@@ -80,6 +80,13 @@
 
 ---
 
+## 📊 Datasets
+
+| Dataset | Source | Size |
+|---------|--------|------|
+| **PlantVillage** | [Kaggle](https://www.kaggle.com/datasets/emmarex/plantdisease) | 87K images, 38 classes |
+| **Crop Recommendation** | [Kaggle](https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset) | 2.2K samples, 22 crops |
+
 ## 🛠️ Technical Architecture
 
 ```
