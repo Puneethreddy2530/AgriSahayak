@@ -93,8 +93,6 @@ Most agriculture projects stop at **prediction**.
 
 Leaf Image → GPU Inference → 38+ Disease Classes → Treatment Plan
 
-yaml
-Copy code
 
 - Real-time CNN inference  
 - CUDA-accelerated GPU execution  
@@ -154,8 +152,6 @@ ML Inference Engine (PyTorch + CUDA)
 ↓
 SQLite + SQLAlchemy
 
-yaml
-Copy code
 
 ---
 
@@ -176,42 +172,38 @@ cd AgriSahayak
 pip install -r requirements.txt
 cd backend
 uvicorn app.main:app --reload
-## 🎯 Impact
 
-| User | Benefit |
-|------|--------|
-| 👨‍🌾 Farmers | Reduced crop loss |
-| 👨‍🌾 Farmers | Better crop decisions |
-| 🏛 Government | Data-driven insights |
-| 👨‍💼 Officers | Faster grievance resolution |
+🎯 Impact
+User	Benefit
+👨‍🌾 Farmers	Reduced crop loss
+👨‍🌾 Farmers	Better crop decisions
+🏛 Government	Data-driven insights
+👨‍💼 Officers	Faster grievance resolution
+🏆 Hackathon Highlights
 
+End-to-end ML pipeline (training → deployment)
 
-## 🏆 Hackathon Highlights
+CUDA-accelerated inference
 
-- End-to-end ML pipeline (training → deployment)
-- CUDA-accelerated inference
-- Live deployment on HuggingFace Spaces
-- Mobile-first & multilingual
-- Real social impact
-- Clean, readable codebase
+Live deployment on HuggingFace Spaces
 
+Mobile-first & multilingual
 
-## 👨‍💻 Team
+Real social impact
 
-Built with ❤️ for **Aarohan Hackathon 2025**
+Clean, readable codebase
 
----
+👨‍💻 Team
 
-## 📄 License
+Built with ❤️ for Aarohan Hackathon 2025
 
-MIT License — see `LICENSE` for details.
+📄 License
 
----
+MIT License — see LICENSE for details.
 
 <div align="center">
 
-⭐ **Star the repo if you find it useful**  
-📱 Works on **Mobile · Tablet · Desktop**
+⭐ Star the repo if you find it useful
+📱 Works on Mobile · Tablet · Desktop
 
-</div>
-
+</div> ```
