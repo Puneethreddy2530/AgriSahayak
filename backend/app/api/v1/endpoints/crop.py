@@ -117,6 +117,13 @@ async def recommend_crops(input_data: CropInput):
                 expected_yield=data.get("yield", "Variable")
             ))
         
+        # Check if recommendations are empty
+        if not recommendations:
+            raise HTTPException(
+                status_code=503,
+                detail="Crop recommendation model failed to generate predictions. Check model file exists and is compatible."
+            )
+        
         # Assess soil health
         soil_health = "Good"
         if input_data.nitrogen < 30 or input_data.phosphorus < 20:
