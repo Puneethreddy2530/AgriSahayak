@@ -1,5 +1,20 @@
 // AgriSahayak - Complete Vanilla JavaScript
-const API_BASE = 'http://127.0.0.1:8000/api/v1';
+// Dynamic API base URL - works on localhost AND Hugging Face Spaces
+const API_BASE = (() => {
+    const host = window.location.hostname;
+    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
+
+    if (isLocalhost) {
+        // Local development - backend runs on port 8000
+        return 'http://127.0.0.1:8000/api/v1';
+    } else {
+        // Deployed (Hugging Face Spaces) - API is on the same origin
+        // The backend serves both frontend and API on the same port
+        return `${window.location.origin}/api/v1`;
+    }
+})();
+
+console.log('[AgriSahayak] API Base URL:', API_BASE);
 
 // ============================================
 // STATE
@@ -33,7 +48,7 @@ const TRANSLATIONS = {
         complaints: "Complaints",
         adminPortal: "Admin Portal",
         logout: "Logout",
-        
+
         // Profile Page
         farmerProfile: "Farmer Profile",
         profileDesc: "Manage your profile and land details for personalized recommendations",
@@ -43,7 +58,7 @@ const TRANSLATIONS = {
         diseaseScanner: "Disease Scanner",
         expenseManager: "Expense Manager",
         govtSchemesFeature: "Govt Schemes",
-        
+
         // Auth
         login: "Login",
         register: "Register",
@@ -61,7 +76,7 @@ const TRANSLATIONS = {
         existingUser: "Already have account?",
         registerHere: "Register here",
         loginHere: "Login here",
-        
+
         // Lands
         yourLands: "Your Lands",
         addLand: "+ Add Land",
@@ -72,7 +87,7 @@ const TRANSLATIONS = {
         location: "Location",
         saveLand: "Save Land",
         cancel: "Cancel",
-        
+
         // Soil Types
         black: "Black (Vertisol)",
         red: "Red (Laterite)",
@@ -80,33 +95,33 @@ const TRANSLATIONS = {
         sandy: "Sandy",
         loamy: "Loamy",
         clay: "Clay",
-        
+
         // Irrigation Types
         rainfed: "Rainfed",
         canal: "Canal",
         borewell: "Borewell/Tubewell",
         drip: "Drip Irrigation",
         sprinkler: "Sprinkler",
-        
+
         // Crop Advisor
         cropAdvisorTitle: "AI Crop Recommendation",
         cropAdvisorDesc: "Get personalized crop suggestions based on your soil, climate, and market conditions",
         selectLand: "Select Land",
         season: "Season",
         getRecs: "Get Recommendations",
-        
+
         // Seasons
         kharif: "Kharif (Monsoon)",
         rabi: "Rabi (Winter)",
         zaid: "Zaid (Summer)",
-        
+
         // Disease Detection
         diseaseTitle: "AI Disease Detection",
         diseaseDesc: "Upload a photo of your crop to detect diseases and get treatment recommendations",
         uploadImage: "Upload Image",
         takePhoto: "Take Photo",
         analyzeDisease: "Analyze Disease",
-        
+
         // Weather
         weatherTitle: "Weather Intelligence",
         weatherDesc: "Get detailed weather forecasts and agricultural advisories for your location",
@@ -116,18 +131,18 @@ const TRANSLATIONS = {
         wind: "Wind",
         pressure: "Pressure",
         forecast: "7-Day Forecast",
-        
+
         // Market
         marketTitle: "Mandi Prices",
         marketDesc: "Real-time market prices from mandis across India",
         selectCommodity: "Select Commodity",
-        
+
         // Schemes
         schemesTitle: "Government Schemes",
         schemesDesc: "Access information about agricultural schemes and subsidies",
         checkEligibility: "Check Eligibility",
         applyNow: "Apply Now",
-        
+
         // Complaints
         complaintsTitle: "Submit Complaint",
         complaintsDesc: "Report issues related to farming, subsidies, or government services",
@@ -137,14 +152,14 @@ const TRANSLATIONS = {
         urgency: "Urgency",
         submitComplaint: "Submit Complaint",
         yourComplaints: "Your Complaints",
-        
+
         // Admin
         adminTitle: "Admin Portal",
         adminDesc: "Manage farmer complaints and view district statistics",
         adminLogin: "Admin Login",
         selectDistrict: "Select District",
         officerId: "Officer ID",
-        
+
         // Common
         loading: "Loading...",
         error: "Error",
@@ -159,21 +174,21 @@ const TRANSLATIONS = {
         submit: "Submit",
         search: "Search",
         noData: "No data available",
-        
+
         // Status
         pending: "Pending",
         inProgress: "In Progress",
         resolved: "Resolved",
         healthy: "Healthy",
         infected: "Infected",
-        
+
         // Units
         acres: "Acres",
         hectares: "Hectares",
         kg: "kg",
         quintal: "Quintal",
         perQuintal: "per Quintal",
-        
+
         // Crop Advisor Page Content
         smartFarmingTitle: "🌱 Smart Farming Starts Here",
         smartFarmingDesc: "Our AI analyzes your soil nutrients, climate data, and regional patterns to recommend the perfect crops for maximum yield.",
@@ -190,7 +205,7 @@ const TRANSLATIONS = {
         annualRainfall: "Annual Rainfall (mm)",
         getRecommendations: "Get Recommendations",
         recommendedCrops: "Recommended Crops",
-        
+
         // Crop Cycle Page Content
         cropCycleTitle: "Crop Lifecycle Tracker",
         cropCycleDesc: "Track your crops from sowing to harvest with AI-powered insights",
@@ -206,7 +221,7 @@ const TRANSLATIONS = {
         activeCropCycles: "Active Crop Cycles",
         noActiveCrops: "No Active Crops",
         noActiveCropsDesc: "Start tracking your first crop cycle to get AI-powered insights!",
-        
+
         // Disease Detection Page Content
         howItWorks: "🔬 How It Works",
         capture: "1. Capture",
@@ -221,14 +236,14 @@ const TRANSLATIONS = {
         diseaseHistory: "Disease History",
         noDiseaseHistory: "No disease history yet",
         noDiseaseHistoryDesc: "Upload your first leaf image to start detecting diseases",
-        
+
         // Fertilizer Page Content
         fertilizerTitle: "Fertilizer Calculator",
         fertilizerDesc: "Get precise fertilizer recommendations based on your soil and crop requirements",
         soilNutrientAnalysis: "Soil Nutrient Analysis",
         calculateFertilizer: "Calculate Fertilizer",
         fertilizerRecommendations: "Fertilizer Recommendations",
-        
+
         // Expense Tracker Page Content
         expenseTitle: "Farm Expense Tracker",
         expenseDesc: "Track all your farming expenses and analyze spending patterns",
@@ -244,7 +259,7 @@ const TRANSLATIONS = {
         noExpenses: "No expenses recorded yet",
         noExpensesDesc: "Start adding your farming expenses to track your costs",
         exportCSV: "Export CSV",
-        
+
         // Weather Page Content
         weatherForecast: "Weather Forecast",
         feelsLike: "Feels like",
@@ -253,7 +268,7 @@ const TRANSLATIONS = {
         sunrise: "Sunrise",
         sunset: "Sunset",
         farmingAdvisory: "Farming Advisory",
-        
+
         // Market Page Content
         liveMarketPrices: "Live Market Prices",
         selectMandi: "Select Mandi",
@@ -262,13 +277,13 @@ const TRANSLATIONS = {
         minPrice: "Min",
         maxPrice: "Max",
         lastUpdated: "Last Updated",
-        
+
         // Schemes Page Content
         eligibleSchemes: "Eligible Schemes",
         benefits: "Benefits",
         documents: "Documents Required",
         applyOnline: "Apply Online",
-        
+
         // Complaints Page Content
         submitNewComplaint: "Submit New Complaint",
         complaintCategory: "Complaint Category",
@@ -279,7 +294,7 @@ const TRANSLATIONS = {
         myComplaints: "My Complaints",
         noComplaints: "No complaints yet",
         noComplaintsDesc: "Submit your first complaint to get help from officials",
-        
+
         // Admin Page Content
         adminDashboard: "Admin Dashboard",
         districtComplaints: "District Complaints",
@@ -304,7 +319,7 @@ const TRANSLATIONS = {
         complaints: "शिकायतें",
         adminPortal: "एडमिन पोर्टल",
         logout: "लॉगआउट",
-        
+
         // Profile Page
         farmerProfile: "किसान प्रोफ़ाइल",
         profileDesc: "व्यक्तिगत सिफारिशों के लिए अपनी प्रोफ़ाइल और भूमि विवरण प्रबंधित करें",
@@ -314,7 +329,7 @@ const TRANSLATIONS = {
         diseaseScanner: "रोग स्कैनर",
         expenseManager: "खर्च प्रबंधक",
         govtSchemesFeature: "सरकारी योजनाएं",
-        
+
         // Auth
         login: "लॉगिन",
         register: "पंजीकरण",
@@ -332,7 +347,7 @@ const TRANSLATIONS = {
         existingUser: "खाता है?",
         registerHere: "यहां पंजीकरण करें",
         loginHere: "यहां लॉगिन करें",
-        
+
         // Lands
         yourLands: "आपकी भूमि",
         addLand: "+ भूमि जोड़ें",
@@ -343,7 +358,7 @@ const TRANSLATIONS = {
         location: "स्थान",
         saveLand: "भूमि सहेजें",
         cancel: "रद्द करें",
-        
+
         // Soil Types
         black: "काली मिट्टी",
         red: "लाल मिट्टी",
@@ -351,33 +366,33 @@ const TRANSLATIONS = {
         sandy: "बलुई मिट्टी",
         loamy: "दोमट मिट्टी",
         clay: "चिकनी मिट्टी",
-        
+
         // Irrigation Types
         rainfed: "वर्षा आधारित",
         canal: "नहर",
         borewell: "बोरवेल/ट्यूबवेल",
         drip: "टपक सिंचाई",
         sprinkler: "फव्वारा सिंचाई",
-        
+
         // Crop Advisor
         cropAdvisorTitle: "AI फसल सिफारिश",
         cropAdvisorDesc: "अपनी मिट्टी, जलवायु और बाजार की स्थिति के आधार पर व्यक्तिगत फसल सुझाव प्राप्त करें",
         selectLand: "भूमि चुनें",
         season: "मौसम",
         getRecs: "सिफारिशें प्राप्त करें",
-        
+
         // Seasons
         kharif: "खरीफ (मानसून)",
         rabi: "रबी (सर्दी)",
         zaid: "जायद (गर्मी)",
-        
+
         // Disease Detection
         diseaseTitle: "AI रोग पहचान",
         diseaseDesc: "रोगों का पता लगाने और उपचार सिफारिशें प्राप्त करने के लिए अपनी फसल की फोटो अपलोड करें",
         uploadImage: "छवि अपलोड करें",
         takePhoto: "फोटो लें",
         analyzeDisease: "रोग का विश्लेषण करें",
-        
+
         // Weather
         weatherTitle: "मौसम जानकारी",
         weatherDesc: "अपने स्थान के लिए विस्तृत मौसम पूर्वानुमान और कृषि सलाह प्राप्त करें",
@@ -387,18 +402,18 @@ const TRANSLATIONS = {
         wind: "हवा",
         pressure: "दबाव",
         forecast: "7-दिन का पूर्वानुमान",
-        
+
         // Market
         marketTitle: "मंडी भाव",
         marketDesc: "पूरे भारत की मंडियों से वास्तविक समय के बाजार भाव",
         selectCommodity: "वस्तु चुनें",
-        
+
         // Schemes
         schemesTitle: "सरकारी योजनाएं",
         schemesDesc: "कृषि योजनाओं और सब्सिडी के बारे में जानकारी प्राप्त करें",
         checkEligibility: "पात्रता जांचें",
         applyNow: "अभी आवेदन करें",
-        
+
         // Complaints
         complaintsTitle: "शिकायत दर्ज करें",
         complaintsDesc: "खेती, सब्सिडी या सरकारी सेवाओं से संबंधित समस्याओं की रिपोर्ट करें",
@@ -408,14 +423,14 @@ const TRANSLATIONS = {
         urgency: "तात्कालिकता",
         submitComplaint: "शिकायत दर्ज करें",
         yourComplaints: "आपकी शिकायतें",
-        
+
         // Admin
         adminTitle: "एडमिन पोर्टल",
         adminDesc: "किसान शिकायतों का प्रबंधन करें और जिला आंकड़े देखें",
         adminLogin: "एडमिन लॉगिन",
         selectDistrict: "जिला चुनें",
         officerId: "अधिकारी आईडी",
-        
+
         // Common
         loading: "लोड हो रहा है...",
         error: "त्रुटि",
@@ -430,21 +445,21 @@ const TRANSLATIONS = {
         submit: "जमा करें",
         search: "खोजें",
         noData: "कोई डेटा उपलब्ध नहीं",
-        
+
         // Status
         pending: "लंबित",
         inProgress: "प्रगति में",
         resolved: "हल किया गया",
         healthy: "स्वस्थ",
         infected: "संक्रमित",
-        
+
         // Units
         acres: "एकड़",
         hectares: "हेक्टेयर",
         kg: "किलो",
         quintal: "क्विंटल",
         perQuintal: "प्रति क्विंटल",
-        
+
         // Crop Advisor Page Content
         smartFarmingTitle: "🌱 स्मार्ट खेती यहीं से शुरू",
         smartFarmingDesc: "हमारा AI आपकी मिट्टी के पोषक तत्वों, जलवायु डेटा और क्षेत्रीय पैटर्न का विश्लेषण करके अधिकतम उपज के लिए सही फसलों की सिफारिश करता है।",
@@ -461,7 +476,7 @@ const TRANSLATIONS = {
         annualRainfall: "वार्षिक वर्षा (मिमी)",
         getRecommendations: "सिफारिशें प्राप्त करें",
         recommendedCrops: "अनुशंसित फसलें",
-        
+
         // Crop Cycle Page Content
         cropCycleTitle: "फसल जीवनचक्र ट्रैकर",
         cropCycleDesc: "AI-संचालित जानकारी के साथ बुवाई से कटाई तक अपनी फसलों को ट्रैक करें",
@@ -477,7 +492,7 @@ const TRANSLATIONS = {
         activeCropCycles: "सक्रिय फसल चक्र",
         noActiveCrops: "कोई सक्रिय फसल नहीं",
         noActiveCropsDesc: "AI-संचालित जानकारी प्राप्त करने के लिए अपना पहला फसल चक्र ट्रैक करना शुरू करें!",
-        
+
         // Disease Detection Page Content
         howItWorks: "🔬 यह कैसे काम करता है",
         capture: "1. कैप्चर करें",
@@ -492,14 +507,14 @@ const TRANSLATIONS = {
         diseaseHistory: "रोग इतिहास",
         noDiseaseHistory: "अभी तक कोई रोग इतिहास नहीं",
         noDiseaseHistoryDesc: "रोगों का पता लगाना शुरू करने के लिए अपनी पहली पत्ती की छवि अपलोड करें",
-        
+
         // Fertilizer Page Content
         fertilizerTitle: "उर्वरक कैलकुलेटर",
         fertilizerDesc: "अपनी मिट्टी और फसल की आवश्यकताओं के आधार पर सटीक उर्वरक सिफारिशें प्राप्त करें",
         soilNutrientAnalysis: "मिट्टी पोषक विश्लेषण",
         calculateFertilizer: "उर्वरक गणना करें",
         fertilizerRecommendations: "उर्वरक सिफारिशें",
-        
+
         // Expense Tracker Page Content
         expenseTitle: "कृषि खर्च ट्रैकर",
         expenseDesc: "अपने सभी कृषि खर्चों को ट्रैक करें और खर्च पैटर्न का विश्लेषण करें",
@@ -515,7 +530,7 @@ const TRANSLATIONS = {
         noExpenses: "अभी तक कोई खर्च दर्ज नहीं",
         noExpensesDesc: "अपनी लागतों को ट्रैक करने के लिए अपने कृषि खर्चों को जोड़ना शुरू करें",
         exportCSV: "CSV निर्यात करें",
-        
+
         // Weather Page Content
         weatherForecast: "मौसम पूर्वानुमान",
         feelsLike: "महसूस होता है",
@@ -524,7 +539,7 @@ const TRANSLATIONS = {
         sunrise: "सूर्योदय",
         sunset: "सूर्यास्त",
         farmingAdvisory: "कृषि सलाह",
-        
+
         // Market Page Content
         liveMarketPrices: "लाइव बाजार भाव",
         selectMandi: "मंडी चुनें",
@@ -533,13 +548,13 @@ const TRANSLATIONS = {
         minPrice: "न्यूनतम",
         maxPrice: "अधिकतम",
         lastUpdated: "अंतिम अपडेट",
-        
+
         // Schemes Page Content
         eligibleSchemes: "पात्र योजनाएं",
         benefits: "लाभ",
         documents: "आवश्यक दस्तावेज",
         applyOnline: "ऑनलाइन आवेदन करें",
-        
+
         // Complaints Page Content
         submitNewComplaint: "नई शिकायत दर्ज करें",
         complaintCategory: "शिकायत श्रेणी",
@@ -550,7 +565,7 @@ const TRANSLATIONS = {
         myComplaints: "मेरी शिकायतें",
         noComplaints: "अभी तक कोई शिकायत नहीं",
         noComplaintsDesc: "अधिकारियों से मदद पाने के लिए अपनी पहली शिकायत दर्ज करें",
-        
+
         // Admin Page Content
         adminDashboard: "एडमिन डैशबोर्ड",
         districtComplaints: "जिला शिकायतें",
@@ -575,7 +590,7 @@ const TRANSLATIONS = {
         complaints: "ఫిర్యాదులు",
         adminPortal: "అడ్మిన్ పోర్టల్",
         logout: "లాగ్అవుట్",
-        
+
         // Profile Page
         farmerProfile: "రైతు ప్రొఫైల్",
         profileDesc: "వ్యక్తిగత సిఫార్సుల కోసం మీ ప్రొఫైల్ మరియు భూమి వివరాలను నిర్వహించండి",
@@ -585,7 +600,7 @@ const TRANSLATIONS = {
         diseaseScanner: "వ్యాధి స్కానర్",
         expenseManager: "ఖర్చుల నిర్వహణ",
         govtSchemesFeature: "ప్రభుత్వ పథకాలు",
-        
+
         // Auth
         login: "లాగిన్",
         register: "నమోదు",
@@ -603,7 +618,7 @@ const TRANSLATIONS = {
         existingUser: "ఖాతా ఉందా?",
         registerHere: "ఇక్కడ నమోదు చేయండి",
         loginHere: "ఇక్కడ లాగిన్ చేయండి",
-        
+
         // Lands
         yourLands: "మీ భూములు",
         addLand: "+ భూమి జోడించండి",
@@ -614,7 +629,7 @@ const TRANSLATIONS = {
         location: "స్థానం",
         saveLand: "భూమి సేవ్ చేయండి",
         cancel: "రద్దు చేయండి",
-        
+
         // Common
         loading: "లోడ్ అవుతోంది...",
         error: "లోపం",
@@ -625,12 +640,12 @@ const TRANSLATIONS = {
         submit: "సమర్పించండి",
         search: "వెతకండి",
         noData: "డేటా అందుబాటులో లేదు",
-        
+
         // Status
         pending: "పెండింగ్",
         inProgress: "ప్రగతిలో",
         resolved: "పరిష్కరించబడింది",
-        
+
         // Weather
         weatherTitle: "వాతావరణ సమాచారం",
         temperature: "ఉష్ణోగ్రత",
@@ -653,7 +668,7 @@ const TRANSLATIONS = {
         complaints: "புகார்கள்",
         adminPortal: "நிர்வாக போர்டல்",
         logout: "வெளியேறு",
-        
+
         // Profile Page
         farmerProfile: "விவசாயி சுயவிவரம்",
         profileDesc: "தனிப்பயனாக்கப்பட்ட பரிந்துரைகளுக்கு உங்கள் சுயவிவரம் மற்றும் நில விவரங்களை நிர்வகிக்கவும்",
@@ -663,7 +678,7 @@ const TRANSLATIONS = {
         diseaseScanner: "நோய் ஸ்கேனர்",
         expenseManager: "செலவு மேலாளர்",
         govtSchemesFeature: "அரசு திட்டங்கள்",
-        
+
         // Auth
         login: "உள்நுழை",
         register: "பதிவு செய்",
@@ -681,7 +696,7 @@ const TRANSLATIONS = {
         existingUser: "கணக்கு உள்ளதா?",
         registerHere: "இங்கே பதிவு செய்யவும்",
         loginHere: "இங்கே உள்நுழையவும்",
-        
+
         // Lands
         yourLands: "உங்கள் நிலங்கள்",
         addLand: "+ நிலம் சேர்க்கவும்",
@@ -692,7 +707,7 @@ const TRANSLATIONS = {
         location: "இடம்",
         saveLand: "நிலத்தை சேமி",
         cancel: "ரத்துசெய்",
-        
+
         // Common
         loading: "ஏற்றுகிறது...",
         error: "பிழை",
@@ -703,12 +718,12 @@ const TRANSLATIONS = {
         submit: "சமர்ப்பி",
         search: "தேடு",
         noData: "தரவு இல்லை",
-        
+
         // Status
         pending: "நிலுவையில்",
         inProgress: "நடப்பில்",
         resolved: "தீர்க்கப்பட்டது",
-        
+
         // Weather
         weatherTitle: "வானிலை தகவல்",
         temperature: "வெப்பநிலை",
@@ -731,7 +746,7 @@ const TRANSLATIONS = {
         complaints: "तक्रारी",
         adminPortal: "प्रशासक पोर्टल",
         logout: "बाहेर पडा",
-        
+
         // Profile Page
         farmerProfile: "शेतकरी प्रोफाइल",
         profileDesc: "वैयक्तिक शिफारसींसाठी तुमचे प्रोफाइल आणि जमीन तपशील व्यवस्थापित करा",
@@ -741,7 +756,7 @@ const TRANSLATIONS = {
         diseaseScanner: "रोग स्कॅनर",
         expenseManager: "खर्च व्यवस्थापक",
         govtSchemesFeature: "सरकारी योजना",
-        
+
         // Auth
         login: "लॉगिन",
         register: "नोंदणी",
@@ -754,7 +769,7 @@ const TRANSLATIONS = {
         language: "भाषा",
         loginBtn: "लॉगिन करा",
         registerBtn: "खाते तयार करा",
-        
+
         // Common
         loading: "लोड होत आहे...",
         error: "त्रुटी",
@@ -780,10 +795,10 @@ const TRANSLATIONS = {
         complaints: "ದೂರುಗಳು",
         adminPortal: "ನಿರ್ವಾಹಕ ಪೋರ್ಟಲ್",
         logout: "ಲಾಗ್ಔಟ್",
-        
+
         farmerProfile: "ರೈತ ಪ್ರೊಫೈಲ್",
         welcomeTitle: "🌾 ಆಗ್ರಿಸಹಾಯಕ್‌ಗೆ ಸ್ವಾಗತ",
-        
+
         // Common
         loading: "ಲೋಡ್ ಆಗುತ್ತಿದೆ...",
         error: "ದೋಷ",
@@ -808,10 +823,10 @@ const TRANSLATIONS = {
         complaints: "অভিযোগ",
         adminPortal: "প্রশাসক পোর্টাল",
         logout: "লগআউট",
-        
+
         farmerProfile: "কৃষক প্রোফাইল",
         welcomeTitle: "🌾 অ্যাগ্রিসহায়ক-এ স্বাগতম",
-        
+
         // Common
         loading: "লোড হচ্ছে...",
         error: "ত্রুটি",
@@ -836,10 +851,10 @@ const TRANSLATIONS = {
         complaints: "ફરિયાદો",
         adminPortal: "એડમિન પોર્ટલ",
         logout: "લૉગઆઉટ",
-        
+
         farmerProfile: "ખેડૂત પ્રોફાઇલ",
         welcomeTitle: "🌾 એગ્રીસહાયકમાં આપનું સ્વાગત છે",
-        
+
         // Common
         loading: "લોડ થઈ રહ્યું છે...",
         error: "ભૂલ",
@@ -864,10 +879,10 @@ const TRANSLATIONS = {
         complaints: "ਸ਼ਿਕਾਇਤਾਂ",
         adminPortal: "ਐਡਮਿਨ ਪੋਰਟਲ",
         logout: "ਲੌਗਆਊਟ",
-        
+
         farmerProfile: "ਕਿਸਾਨ ਪ੍ਰੋਫਾਈਲ",
         welcomeTitle: "🌾 ਐਗਰੀਸਹਾਇਕ ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ",
-        
+
         // Common
         loading: "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...",
         error: "ਗਲਤੀ",
@@ -890,13 +905,13 @@ function t(key) {
 function changeAppLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('appLanguage', lang);
-    
+
     // Update both desktop and mobile selectors
     const desktopSelect = document.getElementById('app-language');
     const mobileSelect = document.getElementById('mobile-app-language');
     if (desktopSelect) desktopSelect.value = lang;
     if (mobileSelect) mobileSelect.value = lang;
-    
+
     updateAllTranslations();
 }
 
@@ -910,13 +925,13 @@ function updateAllTranslations() {
             el.textContent = translation;
         }
     });
-    
+
     // Update placeholders
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         el.placeholder = t(key);
     });
-    
+
     // Refresh icons after DOM changes
     lucide.createIcons();
 }
@@ -940,7 +955,7 @@ function loadFromStorage() {
     const savedCycles = localStorage.getItem('cropCycles');
     const savedComplaints = localStorage.getItem('complaints');
     const savedAdmin = localStorage.getItem('admin');
-    
+
     if (savedFarmer) {
         try {
             currentFarmer = JSON.parse(savedFarmer);
@@ -948,7 +963,7 @@ function loadFromStorage() {
             currentFarmer = null;
         }
     }
-    
+
     if (savedCycles) {
         try {
             currentCycles = JSON.parse(savedCycles);
@@ -956,7 +971,7 @@ function loadFromStorage() {
             currentCycles = [];
         }
     }
-    
+
     if (savedComplaints) {
         try {
             complaints = JSON.parse(savedComplaints);
@@ -964,7 +979,7 @@ function loadFromStorage() {
             complaints = [];
         }
     }
-    
+
     if (savedAdmin) {
         try {
             currentAdmin = JSON.parse(savedAdmin);
@@ -984,10 +999,10 @@ function clearStorage() {
 // ============================================
 function showPage(pageId) {
     console.log('Navigating to:', pageId);
-    
+
     // Hide all pages
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    
+
     // Show target page
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
@@ -996,7 +1011,7 @@ function showPage(pageId) {
         console.error('Page not found:', pageId);
         return;
     }
-    
+
     // Update nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -1008,7 +1023,10 @@ function showPage(pageId) {
     // Initialize page content
     if (pageId === 'market') loadMarketPrices();
     if (pageId === 'schemes') loadSchemes();
-    if (pageId === 'crop-cycle') loadCropCycles();
+    if (pageId === 'crop-cycle') {
+        populateLandDropdown();
+        loadCropCycles();
+    }
     if (pageId === 'weather') loadWeatherPage();
 }
 
@@ -1017,8 +1035,16 @@ function showPage(pageId) {
 // ============================================
 async function checkBackendStatus() {
     const statusEl = document.getElementById('backend-status');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    // On deployed environments (HuggingFace), hide the status indicator
+    if (!isLocalhost) {
+        statusEl.style.display = 'none';
+        return;
+    }
+
     try {
-        const response = await fetch('http://127.0.0.1:8000/health');
+        const response = await fetch(`${API_BASE.replace('/api/v1', '')}/health`);
         const data = await response.json();
         statusEl.innerHTML = `<span style="color: var(--success);">● Connected</span><br><small>GPU: ${data.cuda ? 'Active' : 'CPU'}</small>`;
         statusEl.className = 'backend-status connected';
@@ -1034,7 +1060,7 @@ async function checkBackendStatus() {
 function setAuthMode(mode) {
     document.querySelectorAll('.auth-toggle button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     document.getElementById('register-form').style.display = mode === 'register' ? 'block' : 'none';
     document.getElementById('login-form').style.display = mode === 'login' ? 'block' : 'none';
 }
@@ -1043,7 +1069,7 @@ function setAuthMode(mode) {
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector('i');
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         icon.setAttribute('data-lucide', 'eye-off');
@@ -1144,11 +1170,11 @@ async function registerFarmer() {
         }
 
         const result = await response.json();
-        
+
         // Store token from backend
         authToken = result.access_token;
         localStorage.setItem('authToken', authToken);
-        
+
         // Use user data from backend response
         const farmer = {
             id: result.user.farmer_id,
@@ -1160,7 +1186,7 @@ async function registerFarmer() {
             language: data.language,
             lands: []
         };
-        
+
         alert('Registration successful! Welcome to AgriSahayak.');
         onLoginSuccess(farmer);
     } catch (error) {
@@ -1173,9 +1199,9 @@ async function loginFarmer() {
     const password = document.getElementById('login-password').value;
     const errorEl = document.getElementById('login-error');
     const rememberMe = document.getElementById('remember-me').checked;
-    
+
     errorEl.textContent = '';
-    
+
     if (!usernameOrPhone || !password) {
         errorEl.textContent = 'Please enter username/phone and password';
         return;
@@ -1199,22 +1225,22 @@ async function loginFarmer() {
         }
 
         const result = await response.json();
-        
+
         // Store token from backend
         authToken = result.access_token;
         localStorage.setItem('authToken', authToken);
-        
+
         if (rememberMe) {
             localStorage.setItem('rememberedUser', usernameOrPhone);
         } else {
             localStorage.removeItem('rememberedUser');
         }
-        
+
         // Fetch full profile from backend
         const profileResponse = await fetch(`${API_BASE}/auth/me`, {
             headers: getAuthHeaders()
         });
-        
+
         let farmer;
         if (profileResponse.ok) {
             const profile = await profileResponse.json();
@@ -1228,7 +1254,7 @@ async function loginFarmer() {
                 language: profile.language,
                 lands: []
             };
-            
+
             // Fetch lands from backend
             try {
                 const landsResponse = await fetch(`${API_BASE}/farmer/land/farmer/${profile.farmer_id}`, {
@@ -1251,7 +1277,7 @@ async function loginFarmer() {
                 lands: []
             };
         }
-        
+
         onLoginSuccess(farmer);
     } catch (error) {
         errorEl.textContent = 'Error connecting to server: ' + error.message;
@@ -1266,12 +1292,12 @@ async function lookupFarmer() {
 function onLoginSuccess(farmer) {
     currentFarmer = farmer;
     saveToStorage(); // Save to localStorage for offline access
-    
+
     document.getElementById('auth-section').style.display = 'none';
     document.getElementById('profile-dashboard').style.display = 'block';
     document.getElementById('sidebar-logout').style.display = 'flex'; // Show sidebar logout
     document.getElementById('nav-complaints').style.display = 'flex'; // Show complaints nav
-    
+
     updateProfileDisplay();
     displayProfilePicture();
     renderMyComplaints();
@@ -1289,27 +1315,27 @@ const LANGUAGE_NAMES = {
 
 function updateProfileDisplay() {
     if (!currentFarmer) return;
-    
+
     document.getElementById('farmer-avatar').textContent = currentFarmer.name.charAt(0).toUpperCase();
     document.getElementById('farmer-name').textContent = currentFarmer.name;
     document.getElementById('farmer-username').textContent = currentFarmer.username || 'Not set';
     document.getElementById('farmer-phone').textContent = currentFarmer.phone;
     document.getElementById('farmer-location').textContent = `${currentFarmer.district || ''}, ${currentFarmer.state || ''}`;
     document.getElementById('farmer-id').textContent = `ID: ${currentFarmer.id}`;
-    
+
     // Display language preference
     const langCode = currentFarmer.language || 'hi';
     document.getElementById('farmer-language').textContent = LANGUAGE_NAMES[langCode] || langCode;
-    
+
     const lands = currentFarmer.lands || [];
     document.getElementById('stat-lands').textContent = lands.length;
     document.getElementById('stat-area').textContent = lands.reduce((sum, l) => sum + (l.area || 0), 0).toFixed(1);
-    
+
     // Count crops from both crop_history and active cycles
     const historyCount = lands.reduce((sum, l) => sum + (l.crop_history?.length || 0), 0);
     const activeCount = currentCycles.length;
     document.getElementById('stat-crops').textContent = historyCount + activeCount;
-    
+
     renderLands();
 }
 
@@ -1321,11 +1347,11 @@ function logoutFarmer() {
     document.getElementById('profile-dashboard').style.display = 'none';
     document.getElementById('sidebar-logout').style.display = 'none'; // Hide sidebar logout
     document.getElementById('nav-complaints').style.display = 'none'; // Hide complaints nav
-    
+
     // Reset avatar
     document.getElementById('farmer-avatar').style.display = 'flex';
     document.getElementById('farmer-avatar-img').style.display = 'none';
-    
+
     lucide.createIcons(); // Refresh icons
 }
 
@@ -1339,18 +1365,18 @@ async function addLand() {
         alert('Please login first');
         return;
     }
-    
+
     const name = document.getElementById('land-name').value.trim();
     const area = parseFloat(document.getElementById('land-area').value);
     const soilType = document.getElementById('land-soil').value;
     const irrigationType = document.getElementById('land-irrigation').value;
     const location = document.getElementById('land-location').value.trim();
-    
+
     if (!area || !soilType || !irrigationType) {
         alert('Please fill all required fields (Area, Soil Type, Irrigation)');
         return;
     }
-    
+
     const data = {
         farmer_id: currentFarmer.id,
         area: area,
@@ -1395,7 +1421,7 @@ async function addLand() {
 function renderLands() {
     const container = document.getElementById('lands-container');
     const lands = currentFarmer?.lands || [];
-    
+
     if (lands.length === 0) {
         container.innerHTML = '<div class="empty-state"><p>No lands registered yet. Add your first land!</p></div>';
         return;
@@ -1422,17 +1448,17 @@ function renderLands() {
             </div>
         </div>
     `).join('');
-    
+
     // Refresh Lucide icons for newly rendered content
     lucide.createIcons();
 }
 
 function deleteLand(index) {
     if (!currentFarmer || !currentFarmer.lands) return;
-    
+
     const land = currentFarmer.lands[index];
     const landName = land.name || `Land #${index + 1}`;
-    
+
     if (confirm(`Are you sure you want to delete "${landName}"?`)) {
         currentFarmer.lands.splice(index, 1);
         saveToStorage();
@@ -1494,13 +1520,13 @@ function displayCropResults(data) {
     `).join('');
 
     document.getElementById('crop-cards').innerHTML = cardsHtml;
-    
+
     const healthClass = data.soil_health === 'Excellent' ? 'success' : data.soil_health === 'Good' ? 'success' : 'warning';
     document.getElementById('soil-health').innerHTML = `
         <h4>🌿 Soil Health: <span style="color: var(--${healthClass})">${data.soil_health}</span></h4>
         <p style="color: var(--text-secondary); margin-top: 0.5rem;">${data.advisory}</p>
     `;
-    
+
     document.getElementById('crop-results').style.display = 'block';
     document.getElementById('crop-results').scrollIntoView({ behavior: 'smooth' });
 }
@@ -1508,6 +1534,28 @@ function displayCropResults(data) {
 // ============================================
 // CROP CYCLE
 // ============================================
+function populateLandDropdown() {
+    const select = document.getElementById('cycle-land-id');
+    if (!select) return;
+
+    // Clear existing options except the first one
+    select.innerHTML = '<option value="">-- Select your land --</option>';
+
+    // Check if user has lands
+    if (!currentFarmer || !currentFarmer.lands || currentFarmer.lands.length === 0) {
+        select.innerHTML += '<option value="" disabled>No lands registered. Add land in Profile first.</option>';
+        return;
+    }
+
+    // Add each land as an option
+    currentFarmer.lands.forEach(land => {
+        const option = document.createElement('option');
+        option.value = land.land_id || land.id;
+        option.textContent = `${land.name || 'Land'} (${land.land_id || land.id}) - ${land.area || 0} acres`;
+        select.appendChild(option);
+    });
+}
+
 async function startCropCycle() {
     const data = {
         land_id: document.getElementById('cycle-land-id').value,
@@ -1534,9 +1582,16 @@ async function startCropCycle() {
             saveToStorage(); // Save after adding crop cycle
             renderCropCycles();
             updateProfileDisplay(); // Update crops count in profile
+            alert('Crop cycle started successfully!');
+        } else {
+            // Show the actual error from the API
+            const errorData = await response.json();
+            const errorMsg = errorData.detail || 'Failed to start crop cycle';
+            alert('Error: ' + errorMsg + '\n\nTip: Make sure you have registered a land with this Land ID in your Profile first.');
         }
     } catch (error) {
-        alert('Error starting crop cycle');
+        console.error('Crop cycle error:', error);
+        alert('Error starting crop cycle: ' + error.message);
     }
 }
 
@@ -1548,7 +1603,7 @@ async function loadCropCycles() {
 function renderCropCycles() {
     const container = document.getElementById('cycles-container');
     const emptyEl = document.getElementById('empty-cycles');
-    
+
     if (currentCycles.length === 0) {
         container.innerHTML = '';
         emptyEl.style.display = 'block';
@@ -1666,7 +1721,7 @@ function handleFileSelect(event) {
         document.getElementById('analyze-btn').disabled = false;
     };
     reader.readAsDataURL(file);
-    
+
     document.getElementById('disease-results').style.display = 'none';
 }
 
@@ -2075,7 +2130,7 @@ function filterMarket(event) {
 
 function loadMarketPrices() {
     const data = MARKET_DATA[selectedCommodity];
-    const icons = { 
+    const icons = {
         rice: '🌾', wheat: '🌾', maize: '🌽', bajra: '🌾', jowar: '🌾',
         cotton: '🧶', sugarcane: '🎋', soybean: '🫘', groundnut: '🥜', mustard: '🌻',
         chana: '🫘', moong: '🫛', urad: '🫘', tur: '🫘',
@@ -2325,15 +2380,15 @@ function loadSchemes() {
 
 function filterSchemes() {
     const query = document.getElementById('scheme-search').value.toLowerCase();
-    const filtered = SCHEMES.filter(s => 
-        s.name.toLowerCase().includes(query) || 
-        s.nameHindi.includes(query) || 
+    const filtered = SCHEMES.filter(s =>
+        s.name.toLowerCase().includes(query) ||
+        s.nameHindi.includes(query) ||
         s.description.toLowerCase().includes(query) ||
         s.ministry.toLowerCase().includes(query) ||
         s.benefits.some(b => b.toLowerCase().includes(query))
     );
     renderSchemes(filtered);
-    
+
     // Update scheme count
     const countEl = document.getElementById('scheme-count');
     if (countEl) countEl.textContent = filtered.length;
@@ -2344,10 +2399,10 @@ function filterSchemeCategory(category) {
     document.querySelectorAll('#schemes .filter-btn').forEach(btn => {
         btn.classList.toggle('active', btn.textContent.includes(category));
     });
-    
+
     const filtered = category === 'All' ? SCHEMES : SCHEMES.filter(s => s.category === category);
     renderSchemes(filtered);
-    
+
     // Update scheme count
     const countEl = document.getElementById('scheme-count');
     if (countEl) countEl.textContent = filtered.length;
@@ -2359,13 +2414,13 @@ function renderSchemes(schemes) {
         'Market': '🏪', 'Organic': '🌿', 'Pension': '👴', 'Horticulture': '🍎',
         'Dairy': '🥛', 'Climate': '🌍'
     };
-    
+
     const categoryColors = {
         'Insurance': '#3b82f6', 'Subsidy': '#10b981', 'Credit': '#f59e0b', 'Irrigation': '#06b6d4',
         'Market': '#8b5cf6', 'Organic': '#22c55e', 'Pension': '#ec4899', 'Horticulture': '#f97316',
         'Dairy': '#6366f1', 'Climate': '#14b8a6'
     };
-    
+
     document.getElementById('schemes-grid').innerHTML = schemes.map(scheme => `
         <div class="scheme-card glass-card" onclick="toggleSchemeDetails('${scheme.id}')">
             <div class="scheme-category-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: ${categoryColors[scheme.category] || 'var(--primary)'}22; padding: 0.35rem 0.85rem; border-radius: 1rem; font-size: 0.75rem; color: ${categoryColors[scheme.category] || 'var(--primary)'}; font-weight: 600; border: 1px solid ${categoryColors[scheme.category] || 'var(--primary)'}44;">
@@ -2474,15 +2529,15 @@ function closeEligibilityModal() {
 }
 
 function renderEligibilityQuestion() {
-    const progressHtml = eligibilityQuestions.map((_, i) => 
+    const progressHtml = eligibilityQuestions.map((_, i) =>
         `<div class="progress-dot ${i < eligibilityStep ? 'completed' : ''} ${i === eligibilityStep ? 'active' : ''}"></div>`
     ).join('');
     document.getElementById('eligibility-progress').innerHTML = progressHtml;
-    
+
     const q = eligibilityQuestions[eligibilityStep];
     let html = `<div class="eligibility-question">
         <label>${q.question}</label>`;
-    
+
     if (q.type === 'select') {
         html += `<select class="input" id="elig-${q.id}" onchange="saveEligibilityAnswer('${q.id}', this.value)">
             <option value="">Select an option...</option>
@@ -2508,10 +2563,10 @@ function renderEligibilityQuestion() {
             `).join('')}
         </div>`;
     }
-    
+
     html += '</div>';
     document.getElementById('eligibility-questions').innerHTML = html;
-    
+
     // Update buttons
     document.getElementById('eligibility-prev').style.display = eligibilityStep > 0 ? 'block' : 'none';
     document.getElementById('eligibility-next').textContent = eligibilityStep === eligibilityQuestions.length - 1 ? 'Check Eligibility ✓' : 'Next →';
@@ -2552,7 +2607,7 @@ function nextEligibilityStep() {
         alert('Please select an option to continue');
         return;
     }
-    
+
     if (eligibilityStep < eligibilityQuestions.length - 1) {
         eligibilityStep++;
         renderEligibilityQuestion();
@@ -2564,12 +2619,12 @@ function nextEligibilityStep() {
 function showEligibilityResults() {
     const answers = eligibilityAnswers;
     const results = [];
-    
+
     SCHEMES.forEach(scheme => {
         let eligible = true;
         let reasons = [];
         let matchScore = 0;
-        
+
         // PM-KISAN: Small & marginal farmers only
         if (scheme.id === 'pmkisan') {
             if (['large', 'medium'].includes(answers.land_size)) {
@@ -2579,7 +2634,7 @@ function showEligibilityResults() {
                 matchScore += 20;
             }
         }
-        
+
         // PM-KISAN Maandhan: Age 18-40, land up to 2 hectares
         if (scheme.id === 'pmkmy') {
             if (!['18-30', '30-40'].includes(answers.age)) {
@@ -2592,7 +2647,7 @@ function showEligibilityResults() {
             }
             if (answers.interests?.includes('pension')) matchScore += 30;
         }
-        
+
         // KCC: All farmer types eligible
         if (scheme.id === 'kcc') {
             if (answers.farmer_type === 'landless') {
@@ -2601,22 +2656,22 @@ function showEligibilityResults() {
             }
             if (answers.interests?.includes('credit')) matchScore += 30;
         }
-        
+
         // PMFBY: All farmers
         if (scheme.id === 'pmfby') {
             if (answers.interests?.includes('insurance')) matchScore += 30;
         }
-        
+
         // PMKSY: Irrigation interest
         if (scheme.id === 'pmksy') {
             if (answers.interests?.includes('irrigation')) matchScore += 30;
         }
-        
+
         // Organic schemes
         if (['pkvy', 'gobar'].includes(scheme.id)) {
             if (answers.interests?.includes('organic')) matchScore += 30;
         }
-        
+
         // SC/ST get higher subsidy in many schemes
         if (['sc', 'st'].includes(answers.category)) {
             if (['smam', 'deds', 'midh'].includes(scheme.id)) {
@@ -2624,12 +2679,12 @@ function showEligibilityResults() {
                 reasons.push('Higher subsidy rate for SC/ST (33% vs 25%)');
             }
         }
-        
+
         // Small/marginal farmers get priority
         if (['marginal', 'small'].includes(answers.land_size)) {
             matchScore += 10;
         }
-        
+
         // Interest-based scoring
         const interestMap = {
             'credit': ['kcc', 'aif', 'acabc'],
@@ -2639,13 +2694,13 @@ function showEligibilityResults() {
             'organic': ['pkvy', 'gobar'],
             'pension': ['pmkmy']
         };
-        
+
         (answers.interests || []).forEach(interest => {
             if (interestMap[interest]?.includes(scheme.id)) {
                 matchScore += 20;
             }
         });
-        
+
         results.push({
             scheme,
             eligible,
@@ -2653,13 +2708,13 @@ function showEligibilityResults() {
             matchScore
         });
     });
-    
+
     // Sort by eligibility and match score
     results.sort((a, b) => {
         if (a.eligible !== b.eligible) return b.eligible - a.eligible;
         return b.matchScore - a.matchScore;
     });
-    
+
     // Show results
     const eligibleCount = results.filter(r => r.eligible).length;
     let html = `
@@ -2680,10 +2735,10 @@ function showEligibilityResults() {
                             ${r.reasons.length > 0 && !r.eligible ? `<div style="font-size: 0.75rem; color: #ef4444; margin-top: 0.25rem;">${r.reasons[0]}</div>` : ''}
                         </div>
                         <div style="text-align: right;">
-                            ${r.eligible ? 
-                                `<a href="${r.scheme.applyLink}" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Apply</a>` :
-                                `<span style="color: #ef4444; font-size: 0.8rem;">Not Eligible</span>`
-                            }
+                            ${r.eligible ?
+            `<a href="${r.scheme.applyLink}" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Apply</a>` :
+            `<span style="color: #ef4444; font-size: 0.8rem;">Not Eligible</span>`
+        }
                         </div>
                     </div>
                 `).join('')}
@@ -2692,12 +2747,12 @@ function showEligibilityResults() {
             <button class="btn-secondary" style="width: 100%; margin-top: 1.5rem;" onclick="closeEligibilityModal()">Close</button>
         </div>
     `;
-    
+
     document.getElementById('eligibility-questions').innerHTML = html;
     document.getElementById('eligibility-progress').innerHTML = '';
     document.getElementById('eligibility-footer') ? document.getElementById('eligibility-footer').style.display = 'none' : null;
     document.querySelector('.eligibility-footer').style.display = 'none';
-    
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -2739,7 +2794,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load saved data from localStorage
     loadFromStorage();
-    
+
     // Pre-fill remembered username
     const rememberedUser = localStorage.getItem('rememberedUser');
     if (rememberedUser) {
@@ -2748,7 +2803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (usernameInput) usernameInput.value = rememberedUser;
         if (rememberCheckbox) rememberCheckbox.checked = true;
     }
-    
+
     if (currentFarmer) {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('profile-dashboard').style.display = 'block';
@@ -2758,7 +2813,7 @@ document.addEventListener('DOMContentLoaded', () => {
         displayProfilePicture();
         renderCropCycles(); // Render saved crop cycles
         renderMyComplaints();
-        
+
         // Add to allFarmers for admin view
         let savedFarmers = JSON.parse(localStorage.getItem('allFarmers') || '[]');
         if (!savedFarmers.find(f => f.id === currentFarmer.id)) {
@@ -2766,7 +2821,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('allFarmers', JSON.stringify(savedFarmers));
         }
     }
-    
+
     // Restore admin session
     if (currentAdmin) {
         document.getElementById('admin-auth-section').style.display = 'none';
@@ -2799,7 +2854,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             uploadArea.style.borderColor = 'var(--border)';
             uploadArea.style.background = 'transparent';
-            
+
             if (e.dataTransfer.files.length > 0) {
                 document.getElementById('file-input').files = e.dataTransfer.files;
                 handleFileSelect({ target: { files: e.dataTransfer.files } });
@@ -2809,12 +2864,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize animated background particles
     initParticles();
-    
+
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    
+
     // Load initial content
     loadMarketPrices();
     loadSchemes();
@@ -2826,9 +2881,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function initParticles() {
     const particlesContainer = document.getElementById('particles');
     if (!particlesContainer) return;
-    
+
     const particleCount = 30;
-    
+
     for (let i = 0; i < particleCount; i++) {
         createParticle(particlesContainer);
     }
@@ -2837,23 +2892,23 @@ function initParticles() {
 function createParticle(container) {
     const particle = document.createElement('div');
     particle.className = 'particle';
-    
+
     // Random starting position
     particle.style.left = Math.random() * 100 + '%';
-    
+
     // Random size (small dots)
     const size = Math.random() * 4 + 2; // 2-6px
     particle.style.width = size + 'px';
     particle.style.height = size + 'px';
     particle.style.borderRadius = '50%';
     particle.style.background = `rgba(16, 185, 129, ${Math.random() * 0.4 + 0.1})`;
-    
+
     // Random animation duration and delay
     const duration = Math.random() * 25 + 20; // 20-45 seconds
     const delay = Math.random() * 20; // 0-20 seconds delay
-    
+
     particle.style.animation = `particleFloat ${duration}s linear ${delay}s infinite`;
-    
+
     container.appendChild(particle);
 }
 
@@ -2862,7 +2917,7 @@ document.addEventListener('mousemove', (e) => {
     const orbs = document.querySelectorAll('.orb');
     const x = (e.clientX / window.innerWidth - 0.5) * 2;
     const y = (e.clientY / window.innerHeight - 0.5) * 2;
-    
+
     orbs.forEach((orb, index) => {
         const speed = (index + 1) * 10;
         orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
@@ -2928,18 +2983,18 @@ function loadWeatherPage() {
 async function getWeather() {
     const cityInput = document.getElementById('weather-city').value.trim().toLowerCase();
     const state = document.getElementById('weather-state').value;
-    
+
     if (!cityInput) {
         alert('Please enter a city name');
         return;
     }
-    
+
     showLoading();
-    
+
     try {
         // Get coordinates
         let coords = CITY_COORDS[cityInput] || CITY_COORDS['default'];
-        
+
         // If city not in our list, try geocoding API
         if (!CITY_COORDS[cityInput]) {
             try {
@@ -2954,26 +3009,26 @@ async function getWeather() {
                 console.log('Geocoding failed, using default coords');
             }
         }
-        
+
         // Fetch weather from Open-Meteo (FREE API - No key needed!)
         const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m,wind_direction_10m,uv_index,surface_pressure&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,wind_speed_10m_max,uv_index_max&timezone=Asia%2FKolkata`;
-        
+
         console.log('Fetching weather from:', weatherUrl);
         const response = await fetch(weatherUrl);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('Weather data received:', data);
-        
+
         if (!data.current) {
             throw new Error('Invalid weather data received');
         }
-        
+
         displayWeatherData(data, cityInput, state);
-        
+
     } catch (error) {
         console.error('Weather fetch error:', error);
         alert('Failed to fetch weather data. Please try again.');
@@ -2985,13 +3040,13 @@ async function getWeather() {
 function displayWeatherData(data, city, state) {
     const current = data.current;
     const daily = data.daily;
-    
+
     // Show all weather sections
     document.getElementById('current-weather').style.display = 'block';
     document.getElementById('risk-alerts').style.display = 'block';
     document.getElementById('forecast-section').style.display = 'block';
     document.getElementById('farming-advice').style.display = 'block';
-    
+
     // Weather code to icon & description mapping
     const weatherIcons = {
         0: { icon: '☀️', desc: 'Clear sky' },
@@ -3016,9 +3071,9 @@ function displayWeatherData(data, city, state) {
         96: { icon: '⛈️', desc: 'Thunderstorm with hail' },
         99: { icon: '⛈️', desc: 'Severe thunderstorm' }
     };
-    
+
     const currentWeather = weatherIcons[current.weather_code] || { icon: '🌡️', desc: 'Unknown' };
-    
+
     // Update current weather display
     document.getElementById('weather-icon').textContent = currentWeather.icon;
     document.getElementById('temp-value').textContent = Math.round(current.temperature_2m);
@@ -3029,13 +3084,13 @@ function displayWeatherData(data, city, state) {
     document.getElementById('uv-index').textContent = current.uv_index || 'N/A';
     document.getElementById('pressure').textContent = `${Math.round(current.surface_pressure || 1013)} hPa`;
     document.getElementById('feels-like').textContent = `${Math.round(current.apparent_temperature)}°C`;
-    
+
     // Generate risk alerts based on weather
     generateRiskAlerts(current, daily);
-    
+
     // Display 7-day forecast
     displayForecast(daily, weatherIcons);
-    
+
     // Generate farming advice
     generateFarmingAdvice(current, daily);
 }
@@ -3043,7 +3098,7 @@ function displayWeatherData(data, city, state) {
 function generateRiskAlerts(current, daily) {
     const alertsContainer = document.getElementById('alerts-container');
     const alerts = [];
-    
+
     // Check various risk conditions
     if (current.temperature_2m > 40) {
         alerts.push({
@@ -3062,7 +3117,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Ensure adequate water supply. Consider mulching to retain soil moisture.'
         });
     }
-    
+
     if (current.relative_humidity_2m > 85) {
         alerts.push({
             severity: 'high',
@@ -3072,7 +3127,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Apply preventive fungicide. Ensure proper plant spacing for air circulation.'
         });
     }
-    
+
     // Check 3-day rainfall
     const rainfall3Day = daily.precipitation_sum.slice(0, 3).reduce((a, b) => a + b, 0);
     if (rainfall3Day > 100) {
@@ -3092,7 +3147,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Postpone spraying activities. Check field drainage. Harvest ripe crops before rain.'
         });
     }
-    
+
     if (current.wind_speed_10m > 30) {
         alerts.push({
             severity: 'medium',
@@ -3102,7 +3157,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Do not spray pesticides. Provide support for tall crops. Secure loose structures.'
         });
     }
-    
+
     if (current.uv_index > 8) {
         alerts.push({
             severity: 'medium',
@@ -3112,7 +3167,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Work during early morning or late afternoon. Wear protective clothing.'
         });
     }
-    
+
     // No rain warning
     const totalRain7Day = daily.precipitation_sum.reduce((a, b) => a + b, 0);
     if (totalRain7Day < 5 && current.temperature_2m > 30) {
@@ -3124,7 +3179,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Plan irrigation schedule. Consider drip irrigation. Apply mulch to conserve moisture.'
         });
     }
-    
+
     // If no alerts, show positive message
     if (alerts.length === 0) {
         alerts.push({
@@ -3135,7 +3190,7 @@ function generateRiskAlerts(current, daily) {
             action: '💡 Ideal time for field operations, spraying, and outdoor work.'
         });
     }
-    
+
     alertsContainer.innerHTML = alerts.map(alert => `
         <div class="risk-alert ${alert.severity}">
             <div class="risk-alert-icon">${alert.icon}</div>
@@ -3151,14 +3206,14 @@ function generateRiskAlerts(current, daily) {
 function displayForecast(daily, weatherIcons) {
     const forecastGrid = document.getElementById('forecast-grid');
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+
     forecastGrid.innerHTML = daily.time.slice(0, 7).map((date, i) => {
         const d = new Date(date);
         const dayName = i === 0 ? 'Today' : days[d.getDay()];
         const weather = weatherIcons[daily.weather_code[i]] || { icon: '🌡️' };
         const rain = daily.precipitation_sum[i] || 0;
         const suitable = rain < 10 && daily.temperature_2m_max[i] < 40 && daily.wind_speed_10m_max[i] < 25;
-        
+
         return `
             <div class="forecast-day ${suitable ? 'suitable' : rain > 20 ? 'not-suitable' : ''}">
                 <div class="day-name">${dayName}</div>
@@ -3176,7 +3231,7 @@ function displayForecast(daily, weatherIcons) {
 function generateFarmingAdvice(current, daily) {
     const adviceContainer = document.getElementById('advice-container');
     const advice = [];
-    
+
     // Spray window advice
     const canSpray = current.wind_speed_10m < 15 && current.relative_humidity_2m < 85 && (current.rain || 0) < 1;
     if (canSpray) {
@@ -3192,11 +3247,11 @@ function generateFarmingAdvice(current, daily) {
             desc: `Not ideal for spraying due to ${current.wind_speed_10m > 15 ? 'high wind' : current.relative_humidity_2m > 85 ? 'high humidity' : 'rain'}. Wait for better conditions.`
         });
     }
-    
+
     // Irrigation advice
     const avgTemp = (daily.temperature_2m_max[0] + daily.temperature_2m_min[0]) / 2;
     const rainToday = daily.precipitation_sum[0] || 0;
-    
+
     if (avgTemp > 32 && rainToday < 5) {
         advice.push({
             icon: '💧',
@@ -3210,7 +3265,7 @@ function generateFarmingAdvice(current, daily) {
             desc: `${rainToday.toFixed(1)}mm rain expected/received. No irrigation needed today. Check soil moisture before next irrigation.`
         });
     }
-    
+
     // Harvest advice
     const rainNext3Days = daily.precipitation_sum.slice(0, 3).reduce((a, b) => a + b, 0);
     if (rainNext3Days > 30) {
@@ -3220,7 +3275,7 @@ function generateFarmingAdvice(current, daily) {
             desc: `${rainNext3Days.toFixed(0)}mm rain expected in next 3 days. If crops are ready, harvest before the rain to prevent losses.`
         });
     }
-    
+
     // Sowing/planting advice
     if (rainNext3Days > 15 && rainNext3Days < 50 && current.temperature_2m > 20 && current.temperature_2m < 35) {
         advice.push({
@@ -3229,7 +3284,7 @@ function generateFarmingAdvice(current, daily) {
             desc: 'Moderate rain expected with favorable temperatures. Good conditions for sowing or transplanting seedlings.'
         });
     }
-    
+
     // General field work
     if (current.uv_index < 6 && current.temperature_2m < 35 && current.wind_speed_10m < 20) {
         advice.push({
@@ -3238,7 +3293,7 @@ function generateFarmingAdvice(current, daily) {
             desc: 'Weather is comfortable for outdoor field activities. Stay hydrated and take breaks.'
         });
     }
-    
+
     // Pest alert based on humidity + temp
     if (current.relative_humidity_2m > 70 && current.temperature_2m > 25) {
         advice.push({
@@ -3247,7 +3302,7 @@ function generateFarmingAdvice(current, daily) {
             desc: 'Warm and humid conditions favor pest breeding. Monitor crops closely and consider preventive measures.'
         });
     }
-    
+
     adviceContainer.innerHTML = advice.map(item => `
         <div class="advice-item">
             <div class="advice-icon">${item.icon}</div>
@@ -3265,30 +3320,30 @@ function generateFarmingAdvice(current, daily) {
 function uploadProfilePicture(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith('image/')) {
         alert('Please select an image file');
         return;
     }
-    
+
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         const imageData = e.target.result;
-        
+
         // Update display
         const avatarEl = document.getElementById('farmer-avatar');
         const avatarImg = document.getElementById('farmer-avatar-img');
-        
+
         avatarEl.style.display = 'none';
         avatarImg.src = imageData;
         avatarImg.style.display = 'block';
-        
+
         // Save to farmer profile
         if (currentFarmer) {
             currentFarmer.profilePicture = imageData;
             saveToStorage();
         }
-        
+
         lucide.createIcons();
     };
     reader.readAsDataURL(file);
@@ -3296,10 +3351,10 @@ function uploadProfilePicture(event) {
 
 function displayProfilePicture() {
     if (!currentFarmer) return;
-    
+
     const avatarEl = document.getElementById('farmer-avatar');
     const avatarImg = document.getElementById('farmer-avatar-img');
-    
+
     if (currentFarmer.profilePicture) {
         avatarEl.style.display = 'none';
         avatarImg.src = currentFarmer.profilePicture;
@@ -3319,17 +3374,17 @@ async function submitComplaint() {
         showPage('profile');
         return;
     }
-    
+
     const category = document.getElementById('complaint-category').value;
     const subject = document.getElementById('complaint-subject').value.trim();
     const description = document.getElementById('complaint-description').value.trim();
     const urgency = document.getElementById('complaint-urgency').value;
-    
+
     if (!category || !subject || !description) {
         alert('Please fill all required fields');
         return;
     }
-    
+
     try {
         // Submit to backend API
         const response = await fetch(`${API_BASE}/complaints/`, {
@@ -3345,21 +3400,21 @@ async function submitComplaint() {
                 urgency: urgency
             })
         });
-        
+
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.detail || 'Failed to submit complaint');
         }
-        
+
         const result = await response.json();
-        
+
         // Clear form
         document.getElementById('complaint-category').value = '';
         document.getElementById('complaint-subject').value = '';
         document.getElementById('complaint-description').value = '';
         document.getElementById('complaint-urgency').value = 'low';
         document.getElementById('complaint-photo').value = '';
-        
+
         alert('Complaint submitted successfully! Your complaint ID: ' + result.complaint.id);
         renderMyComplaints();
     } catch (error) {
@@ -3371,7 +3426,7 @@ async function submitComplaint() {
 async function renderMyComplaints() {
     const container = document.getElementById('my-complaints-container');
     if (!container || !currentFarmer) return;
-    
+
     try {
         // Fetch from backend API
         const response = await fetch(`${API_BASE}/complaints/my`, {
@@ -3379,18 +3434,18 @@ async function renderMyComplaints() {
                 'Authorization': `Bearer ${authToken}`
             }
         });
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch complaints');
         }
-        
+
         const myComplaints = await response.json();
-        
+
         if (myComplaints.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><p>No complaints submitted yet.</p></div>';
             return;
         }
-        
+
         container.innerHTML = myComplaints.map(c => `
             <div class="complaint-card glass-card">
                 <div class="complaint-header">
@@ -3414,7 +3469,7 @@ async function renderMyComplaints() {
                 ` : ''}
             </div>
         `).join('');
-        
+
         lucide.createIcons();
     } catch (error) {
         console.error('Error fetching complaints:', error);
@@ -3449,12 +3504,12 @@ function adminLogin() {
     const district = document.getElementById('admin-district').value;
     const adminId = document.getElementById('admin-id').value.trim();
     const password = document.getElementById('admin-password').value;
-    
+
     if (!district || !adminId || !password) {
         alert('Please fill all fields');
         return;
     }
-    
+
     // Demo auth - accept admin/admin123 for any district
     if (adminId === 'admin' && password === 'admin123') {
         currentAdmin = {
@@ -3463,14 +3518,14 @@ function adminLogin() {
             adminId: adminId,
             name: `${district} Agriculture Officer`
         };
-        
+
         localStorage.setItem('admin', JSON.stringify(currentAdmin));
-        
+
         document.getElementById('admin-auth-section').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'block';
         document.getElementById('admin-district-name').textContent = district;
         document.getElementById('admin-officer-id').textContent = 'ID: ' + adminId.toUpperCase();
-        
+
         loadAdminDashboard();
     } else {
         alert('Invalid credentials. Use: admin / admin123');
@@ -3480,7 +3535,7 @@ function adminLogin() {
 function adminLogout() {
     currentAdmin = null;
     localStorage.removeItem('admin');
-    
+
     document.getElementById('admin-auth-section').style.display = 'block';
     document.getElementById('admin-dashboard').style.display = 'none';
     document.getElementById('admin-district').value = '';
@@ -3490,18 +3545,18 @@ function adminLogout() {
 
 async function loadAdminDashboard() {
     if (!currentAdmin) return;
-    
+
     try {
         // Fetch stats from backend API
         const statsResponse = await fetch(`${API_BASE}/complaints/admin/stats/${encodeURIComponent(currentAdmin.district)}`);
-        
+
         if (statsResponse.ok) {
             const stats = await statsResponse.json();
             document.getElementById('admin-total-farmers').textContent = stats.totalFarmers || 0;
             document.getElementById('admin-pending-complaints').textContent = stats.pending || 0;
             document.getElementById('admin-resolved-complaints').textContent = stats.resolved || 0;
         }
-        
+
         // Get total area from farmers in district
         const farmersResponse = await fetch(`${API_BASE}/farmer/all?district=${encodeURIComponent(currentAdmin.district)}`);
         if (farmersResponse.ok) {
@@ -3514,7 +3569,7 @@ async function loadAdminDashboard() {
         } else {
             document.getElementById('admin-total-area').textContent = '0';
         }
-        
+
         await renderAdminComplaints('all');
         await renderAdminFarmers();
     } catch (error) {
@@ -3531,27 +3586,27 @@ function filterComplaints(status) {
 async function renderAdminComplaints(filter) {
     const container = document.getElementById('admin-complaints-container');
     if (!container || !currentAdmin) return;
-    
+
     try {
         // Fetch from backend API
         let url = `${API_BASE}/complaints/admin/district/${encodeURIComponent(currentAdmin.district)}`;
         if (filter && filter !== 'all') {
             url += `?status=${filter}`;
         }
-        
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch complaints');
         }
-        
+
         const filtered = await response.json();
-        
+
         if (filtered.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><p>No complaints found.</p></div>';
             return;
         }
-        
+
         container.innerHTML = filtered.map(c => `
             <div class="admin-complaint-card">
                 <div class="farmer-info">
@@ -3590,7 +3645,7 @@ async function renderAdminComplaints(filter) {
                 ` : ''}
             </div>
         `).join('');
-        
+
         lucide.createIcons();
     } catch (error) {
         console.error('Error rendering admin complaints:', error);
@@ -3609,11 +3664,11 @@ async function updateComplaintStatus(complaintId, newStatus) {
                 status: newStatus
             })
         });
-        
+
         if (!response.ok) {
             throw new Error('Failed to update complaint');
         }
-        
+
         loadAdminDashboard();
     } catch (error) {
         console.error('Error updating complaint:', error);
@@ -3624,7 +3679,7 @@ async function updateComplaintStatus(complaintId, newStatus) {
 async function resolveComplaint(complaintId) {
     const response = prompt('Enter your response/resolution for this complaint:');
     if (!response) return;
-    
+
     try {
         const apiResponse = await fetch(`${API_BASE}/complaints/admin/${complaintId}`, {
             method: 'PUT',
@@ -3637,11 +3692,11 @@ async function resolveComplaint(complaintId) {
                 resolved_by: currentAdmin?.name || 'Admin'
             })
         });
-        
+
         if (!apiResponse.ok) {
             throw new Error('Failed to resolve complaint');
         }
-        
+
         alert('Complaint resolved successfully!');
         loadAdminDashboard();
     } catch (error) {
@@ -3653,11 +3708,11 @@ async function resolveComplaint(complaintId) {
 async function renderAdminFarmers() {
     const container = document.getElementById('admin-farmers-container');
     if (!container || !currentAdmin) return;
-    
+
     try {
         // Fetch farmers from backend
         const response = await fetch(`${API_BASE}/farmer/all?district=${encodeURIComponent(currentAdmin.district)}`);
-        
+
         if (!response.ok) {
             // Fallback to localStorage if API fails
             const savedFarmersData = localStorage.getItem('allFarmers') || '[]';
@@ -3666,7 +3721,7 @@ async function renderAdminFarmers() {
             renderFarmersList(container, districtFarmers);
             return;
         }
-        
+
         const farmers = await response.json();
         renderFarmersList(container, farmers);
     } catch (error) {
@@ -3680,7 +3735,7 @@ function renderFarmersList(container, farmers) {
         container.innerHTML = '<div class="empty-state glass-card"><p>No farmers registered in this district yet.</p></div>';
         return;
     }
-    
+
     container.innerHTML = farmers.map(f => `
         <div class="farmer-list-card">
             <div class="farmer-avatar">
