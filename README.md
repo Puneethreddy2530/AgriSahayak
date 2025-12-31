@@ -176,34 +176,42 @@ cd AgriSahayak
 pip install -r requirements.txt
 cd backend
 uvicorn app.main:app --reload
-🎯 Impact
-User	Benefit
-👨‍🌾 Farmers	Reduced crop loss
-👨‍🌾 Farmers	Better crop decisions
-🏛 Government	Data-driven insights
-👨‍💼 Officers	Faster grievance resolution
+## 🎯 Impact
 
-🏆 Hackathon Highlights
-End-to-end ML pipeline (training → deployment)
+| User | Benefit |
+|------|--------|
+| 👨‍🌾 Farmers | Reduced crop loss |
+| 👨‍🌾 Farmers | Better crop decisions |
+| 🏛 Government | Data-driven insights |
+| 👨‍💼 Officers | Faster grievance resolution |
 
-CUDA-accelerated inference
 
-Live deployment on HuggingFace Spaces
+## 🏆 Hackathon Highlights
 
-Mobile-first & multilingual
+- End-to-end ML pipeline (training → deployment)
+- CUDA-accelerated inference
+- Live deployment on HuggingFace Spaces
+- Mobile-first & multilingual
+- Real social impact
+- Clean, readable codebase
 
-Real social impact
 
-Clean, readable codebase
+## 👨‍💻 Team
 
-👨‍💻 Team
-Built with ❤️ for Aarohan Hackathon 2025
+Built with ❤️ for **Aarohan Hackathon 2025**
 
-📄 License
-MIT License — see LICENSE for details.
+---
+
+## 📄 License
+
+MIT License — see `LICENSE` for details.
+
+---
 
 <div align="center">
-⭐ Star the repo if you find it useful
-📱 Works on Mobile · Tablet · Desktop
 
-</div> ```
+⭐ **Star the repo if you find it useful**  
+📱 Works on **Mobile · Tablet · Desktop**
+
+</div>
+
