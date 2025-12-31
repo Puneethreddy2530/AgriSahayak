@@ -1,9 +1,21 @@
 
 <div align="center">
 
-# 🌾 AgriSahayak
+## 🚨 What Makes This Different (Read This First)
 
-### **AI-Powered Smart Agriculture Platform**
+Most agriculture projects stop at **prediction**.
+
+**AgriSahayak goes further.**
+
+✔ Models are **trained from scratch** using CUDA on GPU  
+✔ Predictions are **served live**, not precomputed  
+✔ Each prediction leads to **actionable advice**  
+✔ Designed for **mobile-first, rural usage**  
+✔ Multiple AI systems work together in one platform  
+
+> This is not a collection of ML notebooks.  
+> This is a **deployable AI product**.
+
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/Puneethreddyt/Agrisahayak)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/Puneethreddy2530/AgriSahayak)
