@@ -410,7 +410,12 @@
             <div class="glass-card">
                 <h3 data-i18n="startNewCropCycle">Start New Crop Cycle</h3>
                 <div class="form-grid">
-                    <div class="input-group"><label data-i18n="landId">Land ID</label><input type="text" id="cycle-land-id" placeholder="e.g., L123ABC" class="input"></div>
+                    <div class="input-group">
+                        <label data-i18n="selectLand">Select Land</label>
+                        <select id="cycle-land-id" class="input">
+                            <option value="">-- Select your land --</option>
+                        </select>
+                    </div>
                     <div class="input-group">
                         <label data-i18n="crop">Crop</label>
                         <select id="cycle-crop" class="input">
