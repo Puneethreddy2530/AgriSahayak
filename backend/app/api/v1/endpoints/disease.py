@@ -177,25 +177,32 @@ async def detect_disease(
     PERSISTS DETECTION TO DATABASE for research and history.
     """
     
+    print(f"[DISEASE DETECT] Called with file: {image.filename}, content_type: {image.content_type}")
     # Validate file type - more lenient check
     valid_types = ["image/jpeg", "image/png", "image/jpg", "application/octet-stream"]
     filename_lower = (image.filename or "").lower()
     is_valid_extension = filename_lower.endswith(('.jpg', '.jpeg', '.png'))
-    
     if image.content_type not in valid_types and not is_valid_extension:
+        print("[DISEASE DETECT] Invalid file type.")
         raise HTTPException(
             status_code=400, 
             detail="Invalid file type. Please upload JPG or PNG image."
         )
-    
     try:
         # Read image
         contents = await image.read()
-        
+        print(f"[DISEASE DETECT] Image size: {len(contents)} bytes")
         # Get ML predictions (Top-3)
-        # Run synchronous ML inference in threadpool to avoid blocking event loop
         from starlette.concurrency import run_in_threadpool
         predictions = await run_in_threadpool(predict_disease, contents)
+        print(f"[DISEASE DETECT] Predictions: {predictions}")
+        
+        # Check if predictions are empty or all failed
+        if not predictions or all(p.get('confidence', 0) <= 0 for p in predictions):
+            raise HTTPException(
+                status_code=503, 
+                detail="Disease detection model not available or failed to process image. Please check logs."
+            )
         
         # Process top prediction
         top_pred = predictions[0] if predictions else {'disease_name': 'Unknown', 'confidence': 0.0}
@@ -266,6 +273,7 @@ async def detect_disease(
         )
         
     except Exception as e:
+        print(f"[DISEASE DETECT] ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
