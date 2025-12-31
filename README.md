@@ -29,9 +29,6 @@ license: mit
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-**🏆 Built for Aarohan Hackathon 2025**
-
-*Revolutionizing Indian Agriculture with Deep Learning, Computer Vision & Real-time Analytics*
 
 </div>
 
