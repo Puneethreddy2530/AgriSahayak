@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriSahayak - Smart Farming Assistant</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <!-- Mobile Language Switcher (visible only on mobile) -->
     <div class="mobile-lang-switcher">
@@ -24,6 +28,42 @@
         </select>
     </div>
 
+    <!-- Mobile Hamburger Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <div class="nav-items">
+            <a href="javascript:void(0)" class="nav-item active" onclick="showPage('profile')">
+                <i data-lucide="user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" onclick="showPage('crop-advisor')">
+                <i data-lucide="sprout"></i>
+                <span>Crops</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" onclick="showPage('disease')">
+                <i data-lucide="scan-search"></i>
+                <span>Detect</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" onclick="showPage('market')">
+                <i data-lucide="trending-up"></i>
+                <span>Market</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" onclick="showPage('weather')">
+                <i data-lucide="cloud-sun"></i>
+                <span>Weather</span>
+            </a>
+        </div>
+    </nav>
+
     <!-- Animated Background -->
     <div class="animated-bg">
         <!-- Aurora Gradient Mesh -->
@@ -32,15 +72,15 @@
             <div class="aurora aurora-2"></div>
             <div class="aurora aurora-3"></div>
         </div>
-        
+
         <!-- Floating Particles Container -->
         <div class="particles" id="particles"></div>
-        
+
         <!-- Glowing Orbs -->
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
-        
+
         <!-- Grid Pattern Overlay -->
         <div class="grid-overlay"></div>
     </div>
@@ -51,7 +91,7 @@
             <i data-lucide="leaf" class="logo-icon-svg"></i>
             <span class="logo-text gradient-text">AgriSahayak</span>
         </div>
-        
+
         <!-- Language Switcher -->
         <div class="language-switcher">
             <i data-lucide="globe" class="lang-icon"></i>
@@ -67,7 +107,7 @@
                 <option value="pa">ਪੰਜਾਬੀ</option>
             </select>
         </div>
-        
+
         <div class="nav-links">
             <a href="javascript:void(0)" class="nav-link active" onclick="showPage('profile')">
                 <i data-lucide="user" class="nav-icon-svg"></i>
@@ -105,24 +145,25 @@
                 <i data-lucide="file-badge" class="nav-icon-svg"></i>
                 <span data-i18n="govtSchemes">Govt Schemes</span>
             </a>
-            <a href="javascript:void(0)" class="nav-link" onclick="showPage('complaints')" id="nav-complaints" style="display: none;">
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('complaints')" id="nav-complaints"
+                style="display: none;">
                 <i data-lucide="message-circle-warning" class="nav-icon-svg"></i>
                 <span data-i18n="complaints">Complaints</span>
             </a>
-            
+
             <div class="nav-divider"></div>
-            
+
             <a href="javascript:void(0)" class="nav-link admin-link" onclick="showPage('admin')">
                 <i data-lucide="shield" class="nav-icon-svg"></i>
                 <span data-i18n="adminPortal">Admin Portal</span>
             </a>
         </div>
-        
+
         <button class="sidebar-logout" id="sidebar-logout" onclick="logoutFarmer()" style="display: none;">
             <i data-lucide="log-out" class="nav-icon-svg"></i>
             <span data-i18n="logout">Logout</span>
         </button>
-        
+
         <div class="backend-status" id="backend-status">
             <i data-lucide="loader" class="spin"></i> Checking backend...
         </div>
@@ -130,7 +171,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        
+
         <!-- PROFILE PAGE -->
         <div id="profile" class="page active">
             <header class="page-header">
@@ -143,7 +184,8 @@
                 <div class="welcome-hero glass-card">
                     <div class="welcome-content">
                         <h2 data-i18n="welcomeTitle">🌾 Welcome to AgriSahayak</h2>
-                        <p data-i18n="welcomeDesc">Your AI-powered farming companion. Get crop recommendations, detect plant diseases, track expenses, and access government schemes - all in one place.</p>
+                        <p data-i18n="welcomeDesc">Your AI-powered farming companion. Get crop recommendations, detect
+                            plant diseases, track expenses, and access government schemes - all in one place.</p>
                         <div class="feature-highlights">
                             <div class="highlight-item">
                                 <i data-lucide="brain" class="highlight-icon"></i>
@@ -166,7 +208,9 @@
                     <div class="welcome-image">
                         <div class="image-placeholder">
                             <i data-lucide="leaf" style="width: 80px; height: 80px; color: var(--primary);"></i>
-                            <span style="font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-top: 1rem;">Smart Farming</span>
+                            <span
+                                style="font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-top: 1rem;">Smart
+                                Farming</span>
                             <span style="font-size: 0.9rem; color: var(--text-secondary);">AI-Powered Agriculture</span>
                         </div>
                     </div>
@@ -187,15 +231,18 @@
                         </div>
                         <div class="input-group">
                             <label>Username</label>
-                            <input type="text" id="reg-username" placeholder="Choose a username" class="input" autocomplete="username">
+                            <input type="text" id="reg-username" placeholder="Choose a username" class="input"
+                                autocomplete="username">
                         </div>
                         <div class="input-group">
                             <label>Password</label>
-                            <input type="password" id="reg-password" placeholder="Create password (min 6 chars)" class="input" autocomplete="new-password">
+                            <input type="password" id="reg-password" placeholder="Create password (min 6 chars)"
+                                class="input" autocomplete="new-password">
                         </div>
                         <div class="input-group">
                             <label>Confirm Password</label>
-                            <input type="password" id="reg-confirm-password" placeholder="Confirm password" class="input" autocomplete="new-password">
+                            <input type="password" id="reg-confirm-password" placeholder="Confirm password"
+                                class="input" autocomplete="new-password">
                         </div>
                         <div class="input-group">
                             <label>Phone Number</label>
@@ -205,10 +252,19 @@
                             <label>State</label>
                             <select id="reg-state" class="input">
                                 <option value="">Select State</option>
-                                <option>Maharashtra</option><option>Punjab</option><option>Uttar Pradesh</option>
-                                <option>Madhya Pradesh</option><option>Gujarat</option><option>Rajasthan</option>
-                                <option>Karnataka</option><option>Tamil Nadu</option><option>Andhra Pradesh</option>
-                                <option>Telangana</option><option>West Bengal</option><option>Bihar</option><option>Haryana</option>
+                                <option>Maharashtra</option>
+                                <option>Punjab</option>
+                                <option>Uttar Pradesh</option>
+                                <option>Madhya Pradesh</option>
+                                <option>Gujarat</option>
+                                <option>Rajasthan</option>
+                                <option>Karnataka</option>
+                                <option>Tamil Nadu</option>
+                                <option>Andhra Pradesh</option>
+                                <option>Telangana</option>
+                                <option>West Bengal</option>
+                                <option>Bihar</option>
+                                <option>Haryana</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -218,9 +274,12 @@
                         <div class="input-group">
                             <label>Preferred Language</label>
                             <select id="reg-language" class="input">
-                                <option value="hi">हिंदी</option><option value="en">English</option>
-                                <option value="mr">मराठी</option><option value="ta">தமிழ்</option>
-                                <option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option>
+                                <option value="hi">हिंदी</option>
+                                <option value="en">English</option>
+                                <option value="mr">मराठी</option>
+                                <option value="ta">தமிழ்</option>
+                                <option value="te">తెలుగు</option>
+                                <option value="kn">ಕನ್ನಡ</option>
                             </select>
                         </div>
                     </div>
@@ -231,12 +290,15 @@
                     <h3>Login to Your Account</h3>
                     <div class="input-group">
                         <label>Username or Phone</label>
-                        <input type="text" id="login-username" placeholder="Enter username or phone" class="input" autocomplete="username">
+                        <input type="text" id="login-username" placeholder="Enter username or phone" class="input"
+                            autocomplete="username">
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="login-password" placeholder="Enter your password" class="input" autocomplete="current-password">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)">
+                        <input type="password" id="login-password" placeholder="Enter your password" class="input"
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle"
+                            onclick="togglePasswordVisibility('login-password', this)">
                             <i data-lucide="eye" class="eye-icon"></i>
                         </button>
                     </div>
@@ -244,7 +306,8 @@
                         <label class="remember-me">
                             <input type="checkbox" id="remember-me"> Remember me
                         </label>
-                        <a href="javascript:void(0)" class="forgot-password" onclick="showForgotPassword()">Forgot Password?</a>
+                        <a href="javascript:void(0)" class="forgot-password" onclick="showForgotPassword()">Forgot
+                            Password?</a>
                     </div>
                     <button class="btn-primary" onclick="loginFarmer()">Login</button>
                     <p id="login-error" class="error-msg"></p>
@@ -264,21 +327,33 @@
                             <label class="avatar-upload-btn" for="avatar-upload" title="Change Photo">
                                 <i data-lucide="camera" style="width:14px;height:14px;"></i>
                             </label>
-                            <input type="file" id="avatar-upload" accept="image/*" onchange="uploadProfilePicture(event)" style="display: none;">
+                            <input type="file" id="avatar-upload" accept="image/*"
+                                onchange="uploadProfilePicture(event)" style="display: none;">
                         </div>
                         <div class="profile-info">
                             <h2 id="farmer-name">John Doe</h2>
-                            <p class="text-muted"><i data-lucide="at-sign" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-username">username</span></p>
-                            <p class="text-muted"><i data-lucide="phone" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-phone">9876543210</span></p>
-                            <p class="text-muted"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-location">District, State</span></p>
-                            <p class="text-muted"><i data-lucide="languages" style="width:14px;height:14px;display:inline;"></i> <span id="farmer-language">हिंदी</span></p>
+                            <p class="text-muted"><i data-lucide="at-sign"
+                                    style="width:14px;height:14px;display:inline;"></i> <span
+                                    id="farmer-username">username</span></p>
+                            <p class="text-muted"><i data-lucide="phone"
+                                    style="width:14px;height:14px;display:inline;"></i> <span
+                                    id="farmer-phone">9876543210</span></p>
+                            <p class="text-muted"><i data-lucide="map-pin"
+                                    style="width:14px;height:14px;display:inline;"></i> <span
+                                    id="farmer-location">District, State</span></p>
+                            <p class="text-muted"><i data-lucide="languages"
+                                    style="width:14px;height:14px;display:inline;"></i> <span
+                                    id="farmer-language">हिंदी</span></p>
                         </div>
                         <span class="badge" id="farmer-id">ID: ABC123</span>
                     </div>
                     <div class="profile-stats">
-                        <div class="stat"><span class="stat-value" id="stat-lands">0</span><span class="stat-label">Lands</span></div>
-                        <div class="stat"><span class="stat-value" id="stat-area">0</span><span class="stat-label">Acres</span></div>
-                        <div class="stat"><span class="stat-value" id="stat-crops">0</span><span class="stat-label">Crops Grown</span></div>
+                        <div class="stat"><span class="stat-value" id="stat-lands">0</span><span
+                                class="stat-label">Lands</span></div>
+                        <div class="stat"><span class="stat-value" id="stat-area">0</span><span
+                                class="stat-label">Acres</span></div>
+                        <div class="stat"><span class="stat-value" id="stat-crops">0</span><span
+                                class="stat-label">Crops Grown</span></div>
                     </div>
                     <button class="btn-logout" onclick="logoutFarmer()">
                         <i data-lucide="log-out" style="width:16px;height:16px;"></i>
@@ -295,7 +370,8 @@
                     <div class="form-grid">
                         <div class="input-group full-width">
                             <label>Land Name</label>
-                            <input type="text" id="land-name" placeholder="e.g., North Field, Village Plot" class="input">
+                            <input type="text" id="land-name" placeholder="e.g., North Field, Village Plot"
+                                class="input">
                         </div>
                         <div class="input-group">
                             <label>Area (Acres)</label>
@@ -305,16 +381,22 @@
                             <label>Soil Type</label>
                             <select id="land-soil" class="input">
                                 <option value="">Select</option>
-                                <option value="black">Black (Regur)</option><option value="red">Red Soil</option>
-                                <option value="alluvial">Alluvial</option><option value="sandy">Sandy</option><option value="loamy">Loamy</option>
+                                <option value="black">Black (Regur)</option>
+                                <option value="red">Red Soil</option>
+                                <option value="alluvial">Alluvial</option>
+                                <option value="sandy">Sandy</option>
+                                <option value="loamy">Loamy</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label>Irrigation Type</label>
                             <select id="land-irrigation" class="input">
                                 <option value="">Select</option>
-                                <option value="rainfed">Rainfed</option><option value="canal">Canal</option>
-                                <option value="borewell">Borewell</option><option value="drip">Drip Irrigation</option><option value="sprinkler">Sprinkler</option>
+                                <option value="rainfed">Rainfed</option>
+                                <option value="canal">Canal</option>
+                                <option value="borewell">Borewell</option>
+                                <option value="drip">Drip Irrigation</option>
+                                <option value="sprinkler">Sprinkler</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -341,31 +423,44 @@
                 <div class="hero-content">
                     <div class="hero-text">
                         <h2 data-i18n="smartFarmingTitle">🌱 Smart Farming Starts Here</h2>
-                        <p data-i18n="smartFarmingDesc">Our AI analyzes your soil nutrients, climate data, and regional patterns to recommend the perfect crops for maximum yield.</p>
+                        <p data-i18n="smartFarmingDesc">Our AI analyzes your soil nutrients, climate data, and regional
+                            patterns to recommend the perfect crops for maximum yield.</p>
                     </div>
                     <div class="hero-stats">
-                        <div class="hero-stat"><span class="stat-num">98%</span><span data-i18n="accuracy">Accuracy</span></div>
-                        <div class="hero-stat"><span class="stat-num">22+</span><span data-i18n="crops">Crops</span></div>
-                        <div class="hero-stat"><span class="stat-num">50K+</span><span data-i18n="farmers">Farmers</span></div>
+                        <div class="hero-stat"><span class="stat-num">98%</span><span
+                                data-i18n="accuracy">Accuracy</span></div>
+                        <div class="hero-stat"><span class="stat-num">22+</span><span data-i18n="crops">Crops</span>
+                        </div>
+                        <div class="hero-stat"><span class="stat-num">50K+</span><span
+                                data-i18n="farmers">Farmers</span></div>
                     </div>
                 </div>
                 <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop" alt="Smart Farming" class="hero-img">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop"
+                        alt="Smart Farming" class="hero-img">
                 </div>
             </div>
 
             <div class="glass-card">
                 <h3 data-i18n="enterFieldData">Enter Your Field Data</h3>
                 <div class="form-grid">
-                    <div class="input-group"><label data-i18n="nitrogen">Nitrogen (N) kg/ha</label><input type="number" id="nitrogen" value="50" class="input"></div>
-                    <div class="input-group"><label data-i18n="phosphorus">Phosphorus (P) kg/ha</label><input type="number" id="phosphorus" value="40" class="input"></div>
-                    <div class="input-group"><label data-i18n="potassium">Potassium (K) kg/ha</label><input type="number" id="potassium" value="30" class="input"></div>
-                    <div class="input-group"><label data-i18n="temperatureLabel">Temperature (°C)</label><input type="number" id="temperature" value="28" class="input"></div>
-                    <div class="input-group"><label data-i18n="humidityLabel">Humidity (%)</label><input type="number" id="humidity" value="70" class="input"></div>
-                    <div class="input-group"><label data-i18n="soilPH">Soil pH</label><input type="number" id="ph" value="6.5" step="0.1" class="input"></div>
-                    <div class="input-group full-width"><label data-i18n="annualRainfall">Annual Rainfall (mm)</label><input type="number" id="rainfall" value="150" class="input"></div>
+                    <div class="input-group"><label data-i18n="nitrogen">Nitrogen (N) kg/ha</label><input type="number"
+                            id="nitrogen" value="50" class="input"></div>
+                    <div class="input-group"><label data-i18n="phosphorus">Phosphorus (P) kg/ha</label><input
+                            type="number" id="phosphorus" value="40" class="input"></div>
+                    <div class="input-group"><label data-i18n="potassium">Potassium (K) kg/ha</label><input
+                            type="number" id="potassium" value="30" class="input"></div>
+                    <div class="input-group"><label data-i18n="temperatureLabel">Temperature (°C)</label><input
+                            type="number" id="temperature" value="28" class="input"></div>
+                    <div class="input-group"><label data-i18n="humidityLabel">Humidity (%)</label><input type="number"
+                            id="humidity" value="70" class="input"></div>
+                    <div class="input-group"><label data-i18n="soilPH">Soil pH</label><input type="number" id="ph"
+                            value="6.5" step="0.1" class="input"></div>
+                    <div class="input-group full-width"><label data-i18n="annualRainfall">Annual Rainfall
+                            (mm)</label><input type="number" id="rainfall" value="150" class="input"></div>
                 </div>
-                <button class="btn-primary" id="crop-btn" onclick="getCropRecommendations()" data-i18n="getRecommendations">Get Recommendations</button>
+                <button class="btn-primary" id="crop-btn" onclick="getCropRecommendations()"
+                    data-i18n="getRecommendations">Get Recommendations</button>
             </div>
 
             <div id="crop-results" style="display: none;">
@@ -420,25 +515,37 @@
                         <label data-i18n="crop">Crop</label>
                         <select id="cycle-crop" class="input">
                             <option value="" data-i18n="selectCrop">Select Crop</option>
-                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
-                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
-                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                            <option value="rice">Rice</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="tomato">Tomato</option>
+                            <option value="potato">Potato</option>
+                            <option value="onion">Onion</option>
+                            <option value="sugarcane">Sugarcane</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label>Season</label>
                         <select id="cycle-season" class="input">
-                            <option value="kharif">Kharif (Monsoon)</option><option value="rabi">Rabi (Winter)</option><option value="zaid">Zaid (Summer)</option>
+                            <option value="kharif">Kharif (Monsoon)</option>
+                            <option value="rabi">Rabi (Winter)</option>
+                            <option value="zaid">Zaid (Summer)</option>
                         </select>
                     </div>
-                    <div class="input-group"><label>Sowing Date</label><input type="date" id="cycle-sowing-date" class="input"></div>
+                    <div class="input-group"><label>Sowing Date</label><input type="date" id="cycle-sowing-date"
+                            class="input"></div>
                 </div>
                 <button class="btn-primary" onclick="startCropCycle()">Start Tracking</button>
             </div>
 
-            <div id="active-cycles"><h3>Active Crop Cycles</h3><div id="cycles-container" class="cycle-cards"></div></div>
+            <div id="active-cycles">
+                <h3>Active Crop Cycles</h3>
+                <div id="cycles-container" class="cycle-cards"></div>
+            </div>
             <div id="empty-cycles" class="glass-card empty-state">
-                <i data-lucide="sprout" class="empty-icon-svg"></i><h3>No Active Crops</h3>
+                <i data-lucide="sprout" class="empty-icon-svg"></i>
+                <h3>No Active Crops</h3>
                 <p>Start tracking your first crop cycle to get AI-powered insights!</p>
             </div>
         </div>
@@ -491,7 +598,8 @@
                 <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
                     <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)" hidden>
                     <div id="upload-placeholder" class="upload-placeholder">
-                        <i data-lucide="camera" class="upload-icon-svg"></i><h3>Drop your image here</h3>
+                        <i data-lucide="camera" class="upload-icon-svg"></i>
+                        <h3>Drop your image here</h3>
                         <p>or click to browse</p><span class="upload-hint">Supports JPG, PNG up to 10MB</span>
                     </div>
                     <img id="preview-image" class="preview-image" style="display: none;" alt="Preview">
@@ -543,16 +651,26 @@
                         <label>Crop</label>
                         <select id="fert-crop" class="input">
                             <option value="">Select Crop</option>
-                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
-                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
-                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                            <option value="rice">Rice</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="tomato">Tomato</option>
+                            <option value="potato">Potato</option>
+                            <option value="onion">Onion</option>
+                            <option value="sugarcane">Sugarcane</option>
                         </select>
                     </div>
-                    <div class="input-group"><label>Nitrogen (N) kg/ha</label><input type="number" id="fert-nitrogen" class="input" value="120"></div>
-                    <div class="input-group"><label>Phosphorus (P) kg/ha</label><input type="number" id="fert-phosphorus" class="input" value="35"></div>
-                    <div class="input-group"><label>Potassium (K) kg/ha</label><input type="number" id="fert-potassium" class="input" value="80"></div>
-                    <div class="input-group"><label>Soil pH</label><input type="number" id="fert-ph" class="input" step="0.1" value="6.8"></div>
-                    <div class="input-group"><label>Organic Carbon (%)</label><input type="number" id="fert-oc" class="input" step="0.1" value="0.4"></div>
+                    <div class="input-group"><label>Nitrogen (N) kg/ha</label><input type="number" id="fert-nitrogen"
+                            class="input" value="120"></div>
+                    <div class="input-group"><label>Phosphorus (P) kg/ha</label><input type="number"
+                            id="fert-phosphorus" class="input" value="35"></div>
+                    <div class="input-group"><label>Potassium (K) kg/ha</label><input type="number" id="fert-potassium"
+                            class="input" value="80"></div>
+                    <div class="input-group"><label>Soil pH</label><input type="number" id="fert-ph" class="input"
+                            step="0.1" value="6.8"></div>
+                    <div class="input-group"><label>Organic Carbon (%)</label><input type="number" id="fert-oc"
+                            class="input" step="0.1" value="0.4"></div>
                 </div>
                 <button class="btn-primary" onclick="getFertilizerRecommendations()">Get Smart Recommendations</button>
             </div>
@@ -573,27 +691,41 @@
                         <label>Crop</label>
                         <select id="exp-crop" class="input">
                             <option value="">Select Crop</option>
-                            <option value="rice">Rice</option><option value="wheat">Wheat</option><option value="maize">Maize</option>
-                            <option value="cotton">Cotton</option><option value="tomato">Tomato</option><option value="potato">Potato</option>
-                            <option value="onion">Onion</option><option value="sugarcane">Sugarcane</option>
+                            <option value="rice">Rice</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="tomato">Tomato</option>
+                            <option value="potato">Potato</option>
+                            <option value="onion">Onion</option>
+                            <option value="sugarcane">Sugarcane</option>
                         </select>
                     </div>
-                    <div class="input-group"><label>Area (Acres)</label><input type="number" id="exp-area" class="input" step="0.5" value="2"></div>
+                    <div class="input-group"><label>Area (Acres)</label><input type="number" id="exp-area" class="input"
+                            step="0.5" value="2"></div>
                     <div class="input-group">
                         <label>Season</label>
                         <select id="exp-season" class="input">
-                            <option value="kharif">Kharif (Monsoon)</option><option value="rabi">Rabi (Winter)</option><option value="zaid">Zaid (Summer)</option>
+                            <option value="kharif">Kharif (Monsoon)</option>
+                            <option value="rabi">Rabi (Winter)</option>
+                            <option value="zaid">Zaid (Summer)</option>
                         </select>
                     </div>
                 </div>
                 <h4 style="margin-top: 1.5rem;">Cost Breakdown (₹)</h4>
                 <div class="form-grid">
-                    <div class="input-group"><label>Seed Cost</label><input type="number" id="exp-seed" class="input" value="2000"></div>
-                    <div class="input-group"><label>Fertilizer Cost</label><input type="number" id="exp-fertilizer" class="input" value="3000"></div>
-                    <div class="input-group"><label>Pesticide Cost</label><input type="number" id="exp-pesticide" class="input" value="1500"></div>
-                    <div class="input-group"><label>Labor Cost</label><input type="number" id="exp-labor" class="input" value="5000"></div>
-                    <div class="input-group"><label>Irrigation Cost</label><input type="number" id="exp-irrigation" class="input" value="2000"></div>
-                    <div class="input-group"><label>Machinery Cost</label><input type="number" id="exp-machinery" class="input" value="3000"></div>
+                    <div class="input-group"><label>Seed Cost</label><input type="number" id="exp-seed" class="input"
+                            value="2000"></div>
+                    <div class="input-group"><label>Fertilizer Cost</label><input type="number" id="exp-fertilizer"
+                            class="input" value="3000"></div>
+                    <div class="input-group"><label>Pesticide Cost</label><input type="number" id="exp-pesticide"
+                            class="input" value="1500"></div>
+                    <div class="input-group"><label>Labor Cost</label><input type="number" id="exp-labor" class="input"
+                            value="5000"></div>
+                    <div class="input-group"><label>Irrigation Cost</label><input type="number" id="exp-irrigation"
+                            class="input" value="2000"></div>
+                    <div class="input-group"><label>Machinery Cost</label><input type="number" id="exp-machinery"
+                            class="input" value="3000"></div>
                 </div>
                 <button class="btn-primary" onclick="estimateProfit()">Calculate Profit</button>
             </div>
@@ -642,9 +774,11 @@
             <div class="glass-card">
                 <div class="search-bar">
                     <i data-lucide="search" class="search-icon-svg"></i>
-                    <input type="text" id="market-search" placeholder="Search commodity..." class="search-input" onkeyup="filterMarket(event)">
+                    <input type="text" id="market-search" placeholder="Search commodity..." class="search-input"
+                        onkeyup="filterMarket(event)">
                 </div>
-                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Cereals:</strong></div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                    <strong>Cereals:</strong></div>
                 <div class="quick-filters" id="commodity-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
                     <button class="filter-btn active" onclick="selectCommodity('rice')">🌾 Rice</button>
                     <button class="filter-btn" onclick="selectCommodity('wheat')">🌾 Wheat</button>
@@ -652,7 +786,8 @@
                     <button class="filter-btn" onclick="selectCommodity('bajra')">🌾 Bajra</button>
                     <button class="filter-btn" onclick="selectCommodity('jowar')">🌾 Jowar</button>
                 </div>
-                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Cash Crops:</strong></div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Cash
+                        Crops:</strong></div>
                 <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
                     <button class="filter-btn" onclick="selectCommodity('cotton')">🧶 Cotton</button>
                     <button class="filter-btn" onclick="selectCommodity('sugarcane')">🎋 Sugarcane</button>
@@ -660,14 +795,16 @@
                     <button class="filter-btn" onclick="selectCommodity('groundnut')">🥜 Groundnut</button>
                     <button class="filter-btn" onclick="selectCommodity('mustard')">🌻 Mustard</button>
                 </div>
-                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Pulses:</strong></div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                    <strong>Pulses:</strong></div>
                 <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
                     <button class="filter-btn" onclick="selectCommodity('chana')">🫘 Chana</button>
                     <button class="filter-btn" onclick="selectCommodity('moong')">🫛 Moong</button>
                     <button class="filter-btn" onclick="selectCommodity('urad')">🫘 Urad</button>
                     <button class="filter-btn" onclick="selectCommodity('tur')">🫘 Tur/Arhar</button>
                 </div>
-                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Vegetables & Fruits:</strong></div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Vegetables &
+                        Fruits:</strong></div>
                 <div class="quick-filters" style="flex-wrap: wrap; margin-bottom: 0.75rem;">
                     <button class="filter-btn" onclick="selectCommodity('tomato')">🍅 Tomato</button>
                     <button class="filter-btn" onclick="selectCommodity('potato')">🥔 Potato</button>
@@ -676,7 +813,8 @@
                     <button class="filter-btn" onclick="selectCommodity('banana')">🍌 Banana</button>
                     <button class="filter-btn" onclick="selectCommodity('mango')">🥭 Mango</button>
                 </div>
-                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;"><strong>Spices:</strong></div>
+                <div style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                    <strong>Spices:</strong></div>
                 <div class="quick-filters" style="flex-wrap: wrap;">
                     <button class="filter-btn" onclick="selectCommodity('turmeric')">🟡 Turmeric</button>
                     <button class="filter-btn" onclick="selectCommodity('chilli')">🌶️ Chilli</button>
@@ -695,7 +833,8 @@
             <div class="glass-card">
                 <div class="search-bar">
                     <i data-lucide="search" class="search-icon-svg"></i>
-                    <input type="text" id="scheme-search" placeholder="Search schemes by name, ministry or benefit..." class="search-input" onkeyup="filterSchemes()">
+                    <input type="text" id="scheme-search" placeholder="Search schemes by name, ministry or benefit..."
+                        class="search-input" onkeyup="filterSchemes()">
                 </div>
                 <div class="quick-filters" style="flex-wrap: wrap;">
                     <button class="filter-btn active" onclick="filterSchemeCategory('All')">All</button>
@@ -715,16 +854,20 @@
             <div class="eligibility-cta glass-card">
                 <div class="cta-content">
                     <i data-lucide="badge-check" class="cta-icon-svg"></i>
-                    <div><h3>Check Your Eligibility</h3><p>Answer a few questions to find schemes you qualify for</p></div>
+                    <div>
+                        <h3>Check Your Eligibility</h3>
+                        <p>Answer a few questions to find schemes you qualify for</p>
+                    </div>
                 </div>
                 <button class="btn-primary" onclick="startEligibilityCheck()">Start Check</button>
             </div>
-            
-            <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">
+
+            <div
+                style="margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">
                 <strong id="scheme-count">18</strong> Government Schemes Available
                 <span style="color: var(--text-muted); margin-left: 1rem;">• Updated: Jan 2025</span>
             </div>
-            
+
             <div id="schemes-grid" class="schemes-grid"></div>
         </div>
 
@@ -855,11 +998,13 @@
                     </div>
                     <div class="input-group full-width">
                         <label>Subject</label>
-                        <input type="text" id="complaint-subject" placeholder="Brief description of issue" class="input">
+                        <input type="text" id="complaint-subject" placeholder="Brief description of issue"
+                            class="input">
                     </div>
                     <div class="input-group full-width">
                         <label>Detailed Description</label>
-                        <textarea id="complaint-description" class="input" rows="4" placeholder="Describe your issue in detail..."></textarea>
+                        <textarea id="complaint-description" class="input" rows="4"
+                            placeholder="Describe your issue in detail..."></textarea>
                     </div>
                     <div class="input-group">
                         <label>Urgency Level</label>
@@ -905,15 +1050,33 @@
                         <label>District</label>
                         <select id="admin-district" class="input">
                             <option value="">Select District</option>
-                            <option>Pune</option><option>Mumbai</option><option>Nagpur</option>
-                            <option>Nashik</option><option>Aurangabad</option><option>Solapur</option>
-                            <option>Ludhiana</option><option>Amritsar</option><option>Jalandhar</option>
-                            <option>Lucknow</option><option>Kanpur</option><option>Varanasi</option>
-                            <option>Indore</option><option>Bhopal</option><option>Gwalior</option>
-                            <option>Ahmedabad</option><option>Surat</option><option>Vadodara</option>
-                            <option>Jaipur</option><option>Jodhpur</option><option>Udaipur</option>
-                            <option>Bengaluru</option><option>Mysuru</option><option>Hubli</option>
-                            <option>Chennai</option><option>Coimbatore</option><option>Madurai</option>
+                            <option>Pune</option>
+                            <option>Mumbai</option>
+                            <option>Nagpur</option>
+                            <option>Nashik</option>
+                            <option>Aurangabad</option>
+                            <option>Solapur</option>
+                            <option>Ludhiana</option>
+                            <option>Amritsar</option>
+                            <option>Jalandhar</option>
+                            <option>Lucknow</option>
+                            <option>Kanpur</option>
+                            <option>Varanasi</option>
+                            <option>Indore</option>
+                            <option>Bhopal</option>
+                            <option>Gwalior</option>
+                            <option>Ahmedabad</option>
+                            <option>Surat</option>
+                            <option>Vadodara</option>
+                            <option>Jaipur</option>
+                            <option>Jodhpur</option>
+                            <option>Udaipur</option>
+                            <option>Bengaluru</option>
+                            <option>Mysuru</option>
+                            <option>Hubli</option>
+                            <option>Chennai</option>
+                            <option>Coimbatore</option>
+                            <option>Madurai</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -938,7 +1101,8 @@
             <div id="admin-dashboard" style="display: none;">
                 <div class="admin-header glass-card">
                     <div class="admin-info">
-                        <h3><i data-lucide="shield-check" style="width:20px;height:20px;color:var(--primary);"></i> <span id="admin-district-name">District</span> Agriculture Officer</h3>
+                        <h3><i data-lucide="shield-check" style="width:20px;height:20px;color:var(--primary);"></i>
+                            <span id="admin-district-name">District</span> Agriculture Officer</h3>
                         <p class="text-muted" id="admin-officer-id">ID: ADMIN001</p>
                     </div>
                     <button class="btn-logout" onclick="adminLogout()">
@@ -951,19 +1115,23 @@
                 <div class="admin-stats">
                     <div class="admin-stat-card glass-card">
                         <i data-lucide="users" class="stat-icon"></i>
-                        <div><span class="stat-value" id="admin-total-farmers">0</span><span class="stat-label">Registered Farmers</span></div>
+                        <div><span class="stat-value" id="admin-total-farmers">0</span><span
+                                class="stat-label">Registered Farmers</span></div>
                     </div>
                     <div class="admin-stat-card glass-card">
                         <i data-lucide="alert-circle" class="stat-icon pending"></i>
-                        <div><span class="stat-value" id="admin-pending-complaints">0</span><span class="stat-label">Pending Complaints</span></div>
+                        <div><span class="stat-value" id="admin-pending-complaints">0</span><span
+                                class="stat-label">Pending Complaints</span></div>
                     </div>
                     <div class="admin-stat-card glass-card">
                         <i data-lucide="check-circle" class="stat-icon resolved"></i>
-                        <div><span class="stat-value" id="admin-resolved-complaints">0</span><span class="stat-label">Resolved This Month</span></div>
+                        <div><span class="stat-value" id="admin-resolved-complaints">0</span><span
+                                class="stat-label">Resolved This Month</span></div>
                     </div>
                     <div class="admin-stat-card glass-card">
                         <i data-lucide="map-pin" class="stat-icon"></i>
-                        <div><span class="stat-value" id="admin-total-area">0</span><span class="stat-label">Total Acres</span></div>
+                        <div><span class="stat-value" id="admin-total-area">0</span><span class="stat-label">Total
+                                Acres</span></div>
                     </div>
                 </div>
 
@@ -991,14 +1159,17 @@
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="spinner"></div><p>Processing...</p>
+        <div class="spinner"></div>
+        <p>Processing...</p>
     </div>
 
     <!-- Eligibility Check Modal -->
     <div id="eligibility-modal" class="eligibility-modal">
         <div class="eligibility-content glass-card">
             <div class="eligibility-header">
-                <h2><i data-lucide="badge-check" style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i> Eligibility Check</h2>
+                <h2><i data-lucide="badge-check"
+                        style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
+                    Eligibility Check</h2>
                 <button class="close-modal" onclick="closeEligibilityModal()">
                     <i data-lucide="x" style="width: 24px; height: 24px;"></i>
                 </button>
@@ -1008,7 +1179,8 @@
                 <div id="eligibility-questions"></div>
             </div>
             <div class="eligibility-footer">
-                <button class="btn-secondary" onclick="prevEligibilityStep()" id="eligibility-prev" style="display: none;">← Previous</button>
+                <button class="btn-secondary" onclick="prevEligibilityStep()" id="eligibility-prev"
+                    style="display: none;">← Previous</button>
                 <button class="btn-primary" onclick="nextEligibilityStep()" id="eligibility-next">Next →</button>
             </div>
         </div>
@@ -1021,13 +1193,17 @@
             <div class="input-group">
                 <label>Activity Type</label>
                 <select id="activity-type" class="input">
-                    <option value="irrigation">Irrigation</option><option value="fertilizer">Fertilizer</option>
-                    <option value="pesticide">Pesticide</option><option value="weeding">Weeding</option><option value="other">Other</option>
+                    <option value="irrigation">Irrigation</option>
+                    <option value="fertilizer">Fertilizer</option>
+                    <option value="pesticide">Pesticide</option>
+                    <option value="weeding">Weeding</option>
+                    <option value="other">Other</option>
                 </select>
             </div>
             <div class="input-group">
                 <label>Description</label>
-                <textarea id="activity-description" class="input" rows="3" placeholder="Describe the activity..."></textarea>
+                <textarea id="activity-description" class="input" rows="3"
+                    placeholder="Describe the activity..."></textarea>
             </div>
             <button class="btn-primary" onclick="submitActivity()">Log Activity</button>
         </div>
@@ -1036,4 +1212,5 @@
     <script src="/static/app.js"></script>
     <script>lucide.createIcons();</script>
 </body>
+
 </html>
