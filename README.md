@@ -1,12 +1,3 @@
----
-title: AgriSahayak
-emoji: 🌾
-colorFrom: green
-colorTo: yellow
-sdk: docker
-pinned: false
-license: mit
----
 
 <div align="center">
 
