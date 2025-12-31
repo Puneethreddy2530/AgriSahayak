@@ -34,10 +34,15 @@ _device = None
 
 
 def get_device():
-    """Get the device (GPU/CPU) for inference"""
+    """Get the device (GPU/CPU) for inference - check fresh each time"""
     global _device
     if _device is None:
-        _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            _device = torch.device('cuda:0')
+            logger.info(f"✅ Using GPU: {torch.cuda.get_device_name(0)}")
+        else:
+            _device = torch.device('cpu')
+            logger.warning("⚠️ CUDA not available, using CPU (slower inference)")
     return _device
 
 
@@ -56,8 +61,12 @@ def load_crop_model():
     if _crop_model is None:
         model_path = get_model_path('crop_recommender_rf.pkl')
         if model_path.exists():
-            _crop_model = joblib.load(model_path)
-            logger.info(f"✅ Loaded crop model from {model_path}")
+            try:
+                _crop_model = joblib.load(model_path)
+                logger.info(f"✅ Loaded crop model from {model_path}")
+            except Exception as e:
+                logger.error(f"❌ Failed to load crop model: {e}", exc_info=True)
+                _crop_model = None
         else:
             logger.warning(f"⚠️ Crop model not found at {model_path}")
     return _crop_model
@@ -140,14 +149,32 @@ def _fallback_crop_recommendation(n, p, k, temp, humidity, ph, rainfall):
 # DISEASE DETECTION - Hugging Face Pre-trained Model
 # ==================================================
 def load_disease_model():
-    """Load pre-trained disease detection model from Hugging Face"""
+    """Load pre-trained disease detection model from Hugging Face or local file"""
     global _disease_model, _disease_processor
     
     if _disease_model is None:
+        # Try local model files FIRST
+        local_paths = [
+            get_model_path('disease_detector_goated.pth'),
+            get_model_path('disease_detector.pth')
+        ]
+        
+        for local_path in local_paths:
+            if local_path.exists():
+                try:
+                    logger.info(f"📥 Loading local disease model from {local_path}")
+                    _disease_model = torch.load(local_path, map_location=get_device())
+                    _disease_model.eval()
+                    logger.info(f"✅ Loaded local disease detection model")
+                    return _disease_model, None  # No processor needed for local model
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to load local model {local_path}: {e}")
+        
+        # Fall back to HuggingFace only if local models don't exist
         if HF_AVAILABLE:
             try:
                 model_name = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-                logger.info(f"📥 Loading pre-trained model: {model_name}")
+                logger.info(f"📥 Loading pre-trained model from HuggingFace: {model_name}")
                 
                 _disease_processor = AutoImageProcessor.from_pretrained(model_name)
                 _disease_model = AutoModelForImageClassification.from_pretrained(model_name)
@@ -157,7 +184,7 @@ def load_disease_model():
                 logger.info(f"✅ Loaded HuggingFace plant disease model (95%+ accuracy)")
                 logger.info(f"   Classes: {len(_disease_model.config.id2label)}")
             except Exception as e:
-                logger.warning(f"⚠️ Failed to load HuggingFace model: {e}")
+                logger.error(f"⚠️ Failed to load HuggingFace model: {e}", exc_info=True)
                 _disease_model = None
                 _disease_processor = None
         else:
@@ -205,7 +232,7 @@ def predict_disease(image_bytes: bytes) -> List[Dict]:
         return results
     
     except Exception as e:
-        print(f"⚠️ Disease prediction error: {e}")
+        logger.error(f"Disease prediction error: {e}", exc_info=True)
         return _fallback_disease_prediction()
 
 
@@ -228,8 +255,12 @@ def load_yield_model():
     if _yield_model is None:
         model_path = get_model_path('yield_predictor.joblib')
         if model_path.exists():
-            _yield_model = joblib.load(model_path)
-            logger.info(f"✅ Loaded yield model from {model_path}")
+            try:
+                _yield_model = joblib.load(model_path)
+                logger.info(f"✅ Loaded yield model from {model_path}")
+            except Exception as e:
+                logger.error(f"❌ Failed to load yield model: {e}", exc_info=True)
+                _yield_model = None
         else:
             logger.warning(f"⚠️ Yield model not found at {model_path}")
     
@@ -242,7 +273,8 @@ def predict_yield(crop: str, season: str, state: str, area: float,
     model_data = load_yield_model()
     
     if model_data is None:
-        return {'predicted_yield': 0.0, 'confidence': 0.0}
+        logger.warning(f"Yield model not loaded")
+        return {'predicted_yield': 0.0, 'confidence': 0.0, 'error': 'Yield model not loaded'}
     
     model = model_data['model']
     scaler = model_data['scaler']
@@ -250,28 +282,35 @@ def predict_yield(crop: str, season: str, state: str, area: float,
     
     try:
         crop_encoded = encoders['Crop'].transform([crop])[0]
-    except:
-        crop_encoded = 0
+    except Exception as e:
+        logger.warning(f"Unknown crop '{crop}': {e}")
+        return {'predicted_yield': 0.0, 'confidence': 0.0, 'error': f'Unknown crop: {crop}'}
     
     try:
         season_encoded = encoders['Season'].transform([season])[0]
-    except:
+    except Exception as e:
+        logger.warning(f"Unknown season '{season}': {e}")
         season_encoded = 0
     
     try:
         state_encoded = encoders['State'].transform([state])[0]
-    except:
+    except Exception as e:
+        logger.warning(f"Unknown state '{state}': {e}")
         state_encoded = 0
     
-    features = np.array([[crop_encoded, season_encoded, state_encoded, 
-                          area, rainfall, fertilizer, pesticide]])
-    features_scaled = scaler.transform(features)
-    prediction = model.predict(features_scaled)[0]
-    
-    return {
-        'predicted_yield': float(prediction),
-        'confidence': model_data.get('r2_score', 0.97)
-    }
+    try:
+        features = np.array([[crop_encoded, season_encoded, state_encoded, 
+                              area, rainfall, fertilizer, pesticide]])
+        features_scaled = scaler.transform(features)
+        prediction = model.predict(features_scaled)[0]
+        
+        return {
+            'predicted_yield': float(prediction),
+            'confidence': model_data.get('r2_score', 0.97)
+        }
+    except Exception as e:
+        logger.error(f"Yield prediction error for {crop}: {e}", exc_info=True)
+        return {'predicted_yield': 0.0, 'confidence': 0.0, 'error': str(e)}
 
 
 # ==================================================
